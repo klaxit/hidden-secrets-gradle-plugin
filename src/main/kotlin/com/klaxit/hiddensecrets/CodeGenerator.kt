@@ -26,7 +26,7 @@ class CodeGenerator {
          */
         fun getKotlinCode(keyName: String): String {
             return "\n    external fun get$keyName(packageName: String): String\n" +
-                    "}\n"
+                    "}"
         }
     }
 }
