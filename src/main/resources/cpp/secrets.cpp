@@ -1,7 +1,6 @@
 #include "secrets.hpp"
 
 #include <jni.h>
-#include <string>
 
 #include "sha256.hpp"
 #include "sha256.cpp"
@@ -31,19 +30,19 @@
 */
 
 jstring getOriginalKey(
-        char* obfuscatedSecret,
+        char *obfuscatedSecret,
         int obfuscatedSecretSize,
         jstring obfuscatingJStr,
-        JNIEnv* pEnv) {
+        JNIEnv *pEnv) {
 
     // Get the obfuscating string SHA256 as the obfuscator
-    std::string obfuscatingStr = std::string(pEnv->GetStringUTFChars(obfuscatingJStr, NULL));
-    std::string obfuscator = sha256(obfuscatingStr);
+    const char *obfuscatingStr = pEnv->GetStringUTFChars(obfuscatingJStr, NULL);
+    const char *obfuscator = sha256(obfuscatingStr);
 
     // Apply a XOR between the obfuscated key and the obfuscating string to get original sting
     char out[obfuscatedSecretSize + 1];
-    for(int i=0; i < obfuscatedSecretSize; i++){
-        out[i] = obfuscatedSecret[i] ^ obfuscator[i % obfuscator.length()];
+    for (int i = 0; i < obfuscatedSecretSize; i++) {
+        out[i] = obfuscatedSecret[i] ^ obfuscator[i % strlen(obfuscator)];
     }
 
     // Add string terminal delimiter
@@ -55,9 +54,9 @@ jstring getOriginalKey(
 extern "C"
 JNIEXPORT jstring JNICALL
 Java_YOUR_PACKAGE_GOES_HERE_Secrets_getYOUR_KEY_NAME_GOES_HERE(
-        JNIEnv* pEnv,
+        JNIEnv *pEnv,
         jobject pThis,
         jstring packageName) {
-     char obfuscatedSecret[] = {YOUR_KEY_GOES_HERE};
-     return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), packageName, pEnv);
+    char obfuscatedSecret[] = {YOUR_KEY_GOES_HERE};
+    return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), packageName, pEnv);
 }
