@@ -64,6 +64,5 @@ class Utils {
 
             return encoded
         }
-
     }
 }

@@ -65,15 +65,12 @@ Then sync your Android project.
 
 # 2 - Hide secret key in your project
 
-Prepare your project by adding required files :
-```shell
-gradle setupHiddenSecrets -Ppackage=com.your.package
-```
-
 Obfuscate and hide your key in your project :
 ```shell
-gradle hideSecretKey -Pkey=yourKeyToObfuscate -PkeyName=YourSecretKeyName -Ppackage=com.your.package
+gradle hideSecret -Pkey=yourKeyToObfuscate [-PkeyName=YourSecretKeyName] [-Ppackage=com.your.package]
 ```
+The parameter `keyName` is optional, by default the key name is randomly generated.
+The parameter `package` is optional, by default the `applicationId` of your project will be used.
 
 # 3 - Get your secret key in your app
 👏 You can now get your secret key from Java/Kotlin code by calling :
@@ -94,7 +91,7 @@ As an example, we will use a [rot13 algorithm](https://en.wikipedia.org/wiki/ROT
 After a rot13 encoding your key `yourKeyToObfuscate` becomes `lbheXrlGbBoshfpngr`.
 Add it in your app :
 ```shell
-gradle hideSecretKey -Pkey=lbheXrlGbBoshfpngr -PkeyName=YourSecretKeyName -Ppackage=com.your.package
+gradle hideSecret -Pkey=lbheXrlGbBoshfpngr -PkeyName=YourSecretKeyName
 ```
 
 Then in `secrets.cpp` you need to add your own decoding code in `customDecode` method:
@@ -130,12 +127,12 @@ gradle unzipHiddenSecrets
 Copy required files to your project :
 ```shell
 gradle copyCpp
-gradle copyKotlin -Ppackage=your.package.name
+gradle copyKotlin [-Ppackage=your.package.name]
 ```
 
 Create an obfuscated key and display it :
 ```shell
-gradle obfuscateKey -Pkey=yourKeyToObfuscate -Ppackage=com.your.package
+gradle obfuscate -Pkey=yourKeyToObfuscate [-Ppackage=com.your.package]
 ```
 
 ## Development

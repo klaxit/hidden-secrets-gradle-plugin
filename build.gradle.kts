@@ -8,12 +8,15 @@ version = "1.0.0"
 
 repositories {
     mavenCentral()
+    google()
+    jcenter()
 }
 
 dependencies {
-    implementation("org.codehaus.groovy:groovy-all:2.5.8")
-    //testImplementation("junit", "junit", "4.12")
+    implementation("com.android.tools.build:gradle:4.0.0")
+
     testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.10")
+    testImplementation("junit:junit:4.13")
 }
 
 configure<JavaPluginConvention> {
