@@ -29,6 +29,13 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 */
 
+void customDecode(char *str) {
+    /* Add your own logic here
+    * To improve your key security you can encode it before to integrate it in the app.
+    * And then decode it with your own logic in this function.
+    */
+}
+
 jstring getOriginalKey(
         char *obfuscatedSecret,
         int obfuscatedSecretSize,
@@ -47,6 +54,9 @@ jstring getOriginalKey(
 
     // Add string terminal delimiter
     out[obfuscatedSecretSize] = 0x0;
+
+    //(Optional) To improve key security
+    customDecode(out);
 
     return pEnv->NewStringUTF(out);
 }

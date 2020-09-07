@@ -86,6 +86,41 @@ val key = Secrets().getYourSecretKeyName(packageName)
 String key = new Secrets().getYourSecretKeyName(getPackageName());
 ```
 
+# 4 - (Optional) Improve your key security
+You can improve the security of your keys by using your own custom encoding / decoding algorithm. The keys will be persisted in C++, additionally encoded using your custom algorithm. The decoding algorithm will also be compiled. So an attacker will also have to reverse-engineer it from compiled C++ to find your keys.
+
+As an example, we will use a [rot13 algorithm](https://en.wikipedia.org/wiki/ROT13) to encode / decode our key. Of course, don't use rot13 in your own project, it won't provide any additional security. Find your own "secret" encoding/decoding algorithm!
+
+After a rot13 encoding your key `yourKeyToObfuscate` becomes `lbheXrlGbBoshfpngr`.
+Add it in your app :
+```shell
+gradle hideSecretKey -Pkey=lbheXrlGbBoshfpngr -PkeyName=YourSecretKeyName -Ppackage=com.your.package
+```
+
+Then in `secrets.cpp` you need to add your own decoding code in `customDecode` method:
+```cpp
+void customDecode(char *str) {
+    int c = 13;
+    int l = strlen(str);
+    const char *alpha[2] = { "abcdefghijklmnopqrstuvwxyz", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+    int i;
+    for (i = 0; i < l; i++)
+    {
+        if (!isalpha(str[i]))
+            continue;
+        if (isupper(str[i]))
+            str[i] = alpha[1][((int)(tolower(str[i]) - 'a') + c) % 26];
+        else
+            str[i] = alpha[0][((int)(tolower(str[i]) - 'a') + c) % 26];
+    }
+}
+```
+
+This method is automatically called and will revert the rot13 applied on your key when you will call :
+```kotlin
+Secrets().getYourSecretKeyName(packageName)
+```
+
 ## Other available commands
 Unzip `.jar` file in `/build/` temporary directory :
 ```shell
