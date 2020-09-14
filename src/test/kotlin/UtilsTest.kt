@@ -11,6 +11,13 @@ class UtilsTest : WordSpec({
         }
     }
 
+    "Using sha256()" should {
+        "encode String in sha256" {
+            val key = "youCanNotFindMySecret!"
+            Utils.sha256(key) shouldBe "7bdc2b5992ef7b4cce0e06295f564f4fad0c96e5f82a0bcf9cd8323d3a3bcfbd"
+        }
+    }
+
     "Using encodeSecret()" should {
         "encode String with a seed" {
             val key = "keyToEncode"

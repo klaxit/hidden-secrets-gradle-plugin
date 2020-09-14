@@ -53,7 +53,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         @Input
         fun getKeyParam(): String {
-            var key = ""
+            val key: String
             if (project.hasProperty("key")) {
                 //From command line
                 key = project.property("key") as String
@@ -69,7 +69,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         @Input
         fun getPackageNameParam(): String {
             //From config
-            var packageName : String? = null
+            var packageName: String? = null
             if (project.hasProperty("package")) {
                 //From command line
                 packageName = project.property("package") as String?
@@ -138,8 +138,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         /**
          * Unzip plugin into tmp directory
          */
-        project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::
-        class.java,
+        project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::class.java,
                 object : Action<Copy?> {
                     @TaskAction
                     override fun execute(copy: Copy) {

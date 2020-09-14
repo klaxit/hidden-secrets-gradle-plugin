@@ -1,5 +1,6 @@
 package com.klaxit.hiddensecrets
 
+import com.google.common.annotations.VisibleForTesting
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import kotlin.experimental.xor
@@ -26,7 +27,8 @@ class Utils {
         /**
          * Encode string to sha256
          */
-        private fun sha256(toHash: String): String {
+        @VisibleForTesting
+        fun sha256(toHash: String): String {
             val bytes = toHash.toByteArray()
             val md = MessageDigest.getInstance("SHA-256")
             val digest = md.digest(bytes)

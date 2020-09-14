@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.klaxit.hiddensecrets"
-version = "1.0.0"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -30,6 +30,11 @@ gradlePlugin {
             implementationClass = "com.klaxit.hiddensecrets.HiddenSecretsPlugin"
         }
     }
+}
+
+tasks.withType<Copy> {
+    //Required by Gradle 7.0
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 tasks.withType<Test> {

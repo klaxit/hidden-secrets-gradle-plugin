@@ -1,3 +1,7 @@
+![travis ci status](https://travis-ci.com/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
+
+https://travis-ci.com/klaxit/hidden-secrets-gradle-plugin.svg?branch=master
+
 # Gradle plugin to deeply hide secrets on Android
 
 This repository is the gradle plugin version of this POC : [HiddenSecrets](https://github.com/klaxit/HiddenSecrets)
@@ -17,19 +21,19 @@ This project is also a demonstration on how to create a full Kotlin gradle plugi
 ## Compatibility
 This gradle plugin can be used with any Android project in Java or Kotlin.
 
-# 1 - Get the plugin
 
-You can build the `.jar` file from the code as explained below, or directly get it from [releases](https://github.com/klaxit/hidden-secrets-gradle-plugin/releases).
+## Integrated in Klaxit's production application
+The `HiddenSecretsPlugin` is already used by our Android application : [Klaxit - Covoiturage quotidien](https://play.google.com/store/apps/details?id=com.wayzup.wayzupapp).
+This is a french carpooling app that let our users share there rides to work or other location. 265 companies and 30 client cities are trusting us by using our carpooling solution.
+We are using this plugin to secure keys that we want to hide from easy attacks based on apk extraction and reverse engineering.
+This is why this repository will be well maintained by our engineering team to ensure **Klaxit**'s Android app security.
 
-## Build it
-Checkout the code and run `gradle build` to create the `.jar` file in `/build/libs/`.
+# 1 - Install the plugin
 
-## Copy the plugin
-Copy `HiddenSecretsPlugin-1.0.0.jar` from the gradle plugin folder `/build/libs/` to your Android project in `/app/libs/`.
+Get the latest version of the plugin from [releases](https://github.com/klaxit/hidden-secrets-gradle-plugin/releases).
+Copy `HiddenSecretsPlugin-0.1.0.jar` to your Android project in `/app/libs/` folder.
 
-## Enable the plugin in your project
-
-Add these line in your app level `build.gradle`:
+Add these lines in your app level `build.gradle`:
 
 ```gradle
 buildscript {
@@ -39,7 +43,7 @@ buildscript {
     }
     // Add dependency to HiddenSecretsPlugin
     dependencies {
-        classpath("com.klaxit.hiddensecrets.gradle:HiddenSecretsPlugin:1.0.0")
+        classpath("com.klaxit.hiddensecrets.gradle:HiddenSecretsPlugin:0.1.0")
     }
 }
 
