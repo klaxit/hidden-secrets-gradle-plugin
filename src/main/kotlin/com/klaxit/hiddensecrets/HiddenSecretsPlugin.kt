@@ -1,19 +1,16 @@
 package com.klaxit.hiddensecrets
 
+import com.android.build.gradle.AppExtension
 import org.gradle.api.Action
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.gradle.kotlin.dsl.get
 import java.io.File
 import java.nio.charset.Charset
-
-open class HiddenSecretsPluginExtension {
-    var packageName: String = ""
-}
 
 /**
  * Available gradle tasks from HiddenSecretsPlugin
@@ -21,21 +18,35 @@ open class HiddenSecretsPluginExtension {
 open class HiddenSecretsPlugin : Plugin<Project> {
     companion object {
         private const val APP_MAIN_FOLDER = "src/main/"
+
         //Tasks
         private const val TASK_UNZIP_HIDDEN_SECRETS = "unzipHiddenSecrets"
         private const val TASK_COPY_CPP = "copyCpp"
         private const val TASK_COPY_KOTLIN = "copyKotlin"
-        private const val TASK_OBFUSCATE_KEY = "obfuscateKey"
-        private const val TASK_SETUP_HIDDEN_SECRETS = "setupHiddenSecrets"
-        private const val TASK_HIDE_SECRET_KEY = "hideSecretKey"
+        private const val TASK_OBFUSCATE = "obfuscate"
+        private const val TASK_HIDE_SECRET = "hideSecret"
+        private const val TASK_PACKAGE_NAME = "packageName"
+
+        //Errors
+        private const val ERROR_EMPTY_KEY = "No key provided, use argument '-Pkey=yourKey'"
+        private const val ERROR_EMPTY_PACKAGE = "Empty package name, use argument '-Ppackage=your.package.name'"
     }
 
     override fun apply(project: Project) {
+
         val tmpFolder = java.lang.String.format("%s/hidden-secrets-tmp", project.buildDir)
 
-        val hiddenExtension = project.extensions.create<HiddenSecretsPluginExtension>(
-                "hidden", HiddenSecretsPluginExtension::class.java
-        )
+        /**
+         * Get the package name of the Android app on which this plugin is used
+         */
+        fun getAppPackageName(): String? {
+            val androidExtension = project.extensions.getByName("android")
+
+            if (androidExtension is AppExtension) {
+                return androidExtension.defaultConfig.applicationId
+            }
+            return null
+        }
 
         /**
          * Get key param from command line
@@ -46,6 +57,8 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             if (project.hasProperty("key")) {
                 //From command line
                 key = project.property("key") as String
+            } else {
+                throw InvalidUserDataException(ERROR_EMPTY_KEY)
             }
             return key
         }
@@ -55,10 +68,18 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         @Input
         fun getPackageNameParam(): String {
-            var packageName = hiddenExtension.packageName
+            //From config
+            var packageName : String? = null
             if (project.hasProperty("package")) {
                 //From command line
-                packageName = project.property("package") as String
+                packageName = project.property("package") as String?
+            }
+            if (packageName.isNullOrEmpty()) {
+                //From Android app
+                packageName = getAppPackageName()
+            }
+            if (packageName.isNullOrEmpty()) {
+                throw InvalidUserDataException(ERROR_EMPTY_PACKAGE)
             }
             return packageName
         }
@@ -74,7 +95,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 //From command line
                 keyName = project.property("keyName") as String
             } else {
-                println("Key name has been randomized, chose your own key name by adding argumen -PkeyName=yourName")
+                println("Key name has been randomized, chose your own key name by adding argument '-PkeyName=yourName'")
             }
             println("### KEY NAME ###\n$keyName\n")
             return keyName
@@ -117,25 +138,32 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         /**
          * Unzip plugin into tmp directory
          */
-        project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::class.java, object : Action<Copy?> {
-            @TaskAction
-            override fun execute(copy: Copy) {
-                // in the case of buildSrc dir
-                copy.from(project.zipTree(javaClass.protectionDomain.codeSource.location!!.toExternalForm()))
-                println("Unzip jar to $tmpFolder")
-                copy.into(tmpFolder)
-            }
-        })
+        project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::
+        class.java,
+                object : Action<Copy?> {
+                    @TaskAction
+                    override fun execute(copy: Copy) {
+                        // in the case of buildSrc dir
+                        copy.from(project.zipTree(javaClass.protectionDomain.codeSource.location!!.toExternalForm()))
+                        println("Unzip jar to $tmpFolder")
+                        copy.into(tmpFolder)
+                    }
+                })
 
         /**
          * Copy C++ files to your project
          */
-        project.task(TASK_COPY_CPP) {
+        project.task(TASK_COPY_CPP)
+        {
             doLast {
                 project.file("$tmpFolder/cpp/").listFiles()?.forEach {
                     val destination = getCppDestination(it.name)
-                    println("Copy $it.name to\n$destination")
-                    it.copyTo(destination, true)
+                    if (destination.exists()) {
+                        println(it.name + " already exists")
+                    } else {
+                        println("Copy $it.name to\n$destination")
+                        it.copyTo(destination, true)
+                    }
                 }
             }
         }
@@ -143,16 +171,18 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         /**
          * Copy Kotlin file to your project
          */
-        project.task(TASK_COPY_KOTLIN) {
+        project.task(TASK_COPY_KOTLIN)
+        {
             doLast {
                 val packageName = getPackageNameParam()
-                if (packageName.isEmpty()) {
-                    error("Empty package name, use argument -Ppackage=your.package.name")
-                }
                 project.file("$tmpFolder/kotlin/").listFiles()?.forEach {
                     val destination = getKotlinDestination(packageName, it.name)
-                    println("Copy $it.name to\n$destination")
-                    it.copyTo(destination, true)
+                    if (destination.exists()) {
+                        println(it.name + " already exists")
+                    } else {
+                        println("Copy $it.name to\n$destination")
+                        it.copyTo(destination, true)
+                    }
                 }
             }
         }
@@ -160,26 +190,21 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         /**
          * Get an obfuscated key from command line
          */
-        project.task(TASK_OBFUSCATE_KEY) {
+        project.task(TASK_OBFUSCATE)
+        {
             doLast {
                 getObfuscatedKey()
             }
         }
 
         /**
-         * Setup the project before to be able to hide secrets
-         */
-        project.task(TASK_SETUP_HIDDEN_SECRETS) {
-            dependsOn(listOf(TASK_UNZIP_HIDDEN_SECRETS, TASK_COPY_CPP, TASK_COPY_KOTLIN))
-            doLast{
-                println("Hidden Secrets Plugin is ready !")
-            }
-        }
-
-        /**
          * Obfuscate a key and add it to your Android project
          */
-        project.task(TASK_HIDE_SECRET_KEY) {
+        project.task(TASK_HIDE_SECRET)
+        {
+            dependsOn(TASK_UNZIP_HIDDEN_SECRETS)
+            dependsOn(TASK_COPY_CPP)
+            dependsOn(TASK_COPY_KOTLIN)
             doLast {
                 val keyName = getKeyNameParam()
                 val packageName = getPackageNameParam()
@@ -225,6 +250,16 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 }
 
                 println("You can now get your secret key by calling : Secrets().get$keyName(packageName)")
+            }
+        }
+
+        /**
+         * Print the package name of the app
+         */
+        project.task(TASK_PACKAGE_NAME)
+        {
+            doLast {
+                println("APP PACKAGE NAME = " + getPackageNameParam())
             }
         }
     }
