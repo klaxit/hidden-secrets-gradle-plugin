@@ -1,7 +1,5 @@
 ![travis ci status](https://travis-ci.com/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
 
-https://travis-ci.com/klaxit/hidden-secrets-gradle-plugin.svg?branch=master
-
 # Gradle plugin to deeply hide secrets on Android
 
 This repository is the gradle plugin version of this POC : [HiddenSecrets](https://github.com/klaxit/HiddenSecrets)

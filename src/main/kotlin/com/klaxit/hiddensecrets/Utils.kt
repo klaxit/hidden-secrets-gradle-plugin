@@ -41,7 +41,6 @@ class Utils {
         fun encodeSecret(key: String, packageName: String): String {
             //Generate the obfuscator as the SHA256 of the app package name
             val obfuscator = sha256(packageName)
-            //println("SHA 256 = " + obfuscator)
             val obfuscatorBytes = obfuscator.toByteArray()
 
             //Generate the obfuscated secret bytes array by applying a XOR between the secret and the obfuscator
@@ -57,13 +56,12 @@ class Utils {
             val iterator: Iterator<Byte> = obfuscatedSecretBytes.iterator()
             while (iterator.hasNext()) {
                 val item = iterator.next()
-                encoded += "0x" + Integer.toHexString(item.toInt())
+                encoded += "0x" + Integer.toHexString(item.toInt() and 0xff)
                 if (iterator.hasNext()) {
                     encoded += ", "
                 }
             }
             encoded += " }"
-
             return encoded
         }
     }
