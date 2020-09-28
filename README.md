@@ -1,13 +1,16 @@
+![travis ci status](https://travis-ci.com/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
+
 # Gradle plugin to deeply hide secrets on Android
 
-This repository is the gradle plugin version of this POC : [HiddenSecrets](https://github.com/klaxit/HiddenSecrets)
-
-It is highly inspired from https://www.splinter.com.au/2014/09/16/storing-secret-keys/
+This plugin allows any Android developer to deeply hide secrets in its project. It is an OSS equivalent of what [DexGuard](https://www.guardsquare.com/en/products/dexguard) can offer to prevent **credentials harvesting**.
 
 It uses a combination of obfuscation techniques to do so :
 - secret is obfuscated using the reversible XOR operator so it never appears in plain sight,
 - obfuscated secret is stored in a NDK binary as an hexadecimal array, so it is really hard to spot / put together from a disassembly,
-- the obfuscating string is not persisted in the binary to force runtime evaluation (ie : prevent the compiler from disclosing the secret by optimizing the de-obfuscation logic).
+- the obfuscating string is not persisted in the binary to force runtime evaluation (ie : prevent the compiler from disclosing the secret by optimizing the de-obfuscation logic),
+- optionnaly, anyone can provide it's own encoding / decoding algorithm when using the plugin to add an additional security layer.
+
+This plugin is **used in production** at [Klaxit - Covoiturage quotidien](https://play.google.com/store/apps/details?id=com.wayzup.wayzupapp). Our engineering team at Klaxit will provide its best effort to maintain this project.
 
 ⚠️ Nothing on the client-side is unbreakable. So generally speaking, **keeping a secret in a mobile package is not a smart idea**. But when you absolutely need to, this is the best method we have found to hide it.
 
@@ -17,19 +20,12 @@ This project is also a demonstration on how to create a full Kotlin gradle plugi
 ## Compatibility
 This gradle plugin can be used with any Android project in Java or Kotlin.
 
-# 1 - Get the plugin
+# 1 - Install the plugin
 
-You can build the `.jar` file from the code as explained below, or directly get it from [releases](https://github.com/klaxit/hidden-secrets-gradle-plugin/releases).
+Get the latest version of the plugin from [releases](https://github.com/klaxit/hidden-secrets-gradle-plugin/releases).
+Copy `HiddenSecretsPlugin-X.Y.Z.jar` to your Android project in `/app/libs/` folder.
 
-## Build it
-Checkout the code and run `gradle build` to create the `.jar` file in `/build/libs/`.
-
-## Copy the plugin
-Copy `HiddenSecretsPlugin-1.0.0.jar` from the gradle plugin folder `/build/libs/` to your Android project in `/app/libs/`.
-
-## Enable the plugin in your project
-
-Add these line in your app level `build.gradle`:
+Add these lines in your app level `build.gradle`:
 
 ```gradle
 buildscript {
@@ -39,7 +35,7 @@ buildscript {
     }
     // Add dependency to HiddenSecretsPlugin
     dependencies {
-        classpath("com.klaxit.hiddensecrets.gradle:HiddenSecretsPlugin:1.0.0")
+        classpath("com.klaxit.hiddensecrets.gradle:HiddenSecretsPlugin:X.Y.Z")
     }
 }
 
@@ -138,6 +134,8 @@ gradle obfuscate -Pkey=yourKeyToObfuscate [-Ppackage=com.your.package]
 ## Development
 
 Pull Requests are very welcome!
+
+To get started, checkout the code and run `gradle build` to create the `.jar` file in `/build/libs/`.
 
 Please make sure that you have tested your code carefully before opening a PR, and make sure as well that you have no style issues.
 
