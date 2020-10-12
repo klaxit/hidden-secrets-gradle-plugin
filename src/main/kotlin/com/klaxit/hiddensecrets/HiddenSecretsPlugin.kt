@@ -136,6 +136,37 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
+         * Copy Cpp files from the lib to the Android project if they don't exist yet
+         */
+        fun copyCppFiles() {
+            project.file("$tmpFolder/cpp/").listFiles()?.forEach {
+                val destination = getCppDestination(it.name)
+                if (destination.exists()) {
+                    println(it.name + " already exists")
+                } else {
+                    println("Copy $it.name to\n$destination")
+                    it.copyTo(destination, true)
+                }
+            }
+        }
+
+        /**
+         * Copy Kotlin files from the lib to the Android project if they don't exist yet
+         */
+        fun copyKotlinFiles() {
+            val packageName = getPackageNameParam()
+            project.file("$tmpFolder/kotlin/").listFiles()?.forEach {
+                val destination = getKotlinDestination(packageName, it.name)
+                if (destination.exists()) {
+                    println(it.name + " already exists")
+                } else {
+                    println("Copy $it.name to\n$destination")
+                    it.copyTo(destination, true)
+                }
+            }
+        }
+
+        /**
          * Unzip plugin into tmp directory
          */
         project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::class.java,
@@ -155,15 +186,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         project.task(TASK_COPY_CPP)
         {
             doLast {
-                project.file("$tmpFolder/cpp/").listFiles()?.forEach {
-                    val destination = getCppDestination(it.name)
-                    if (destination.exists()) {
-                        println(it.name + " already exists")
-                    } else {
-                        println("Copy $it.name to\n$destination")
-                        it.copyTo(destination, true)
-                    }
-                }
+                copyCppFiles()
             }
         }
 
@@ -173,16 +196,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         project.task(TASK_COPY_KOTLIN)
         {
             doLast {
-                val packageName = getPackageNameParam()
-                project.file("$tmpFolder/kotlin/").listFiles()?.forEach {
-                    val destination = getKotlinDestination(packageName, it.name)
-                    if (destination.exists()) {
-                        println(it.name + " already exists")
-                    } else {
-                        println("Copy $it.name to\n$destination")
-                        it.copyTo(destination, true)
-                    }
-                }
+                copyKotlinFiles()
             }
         }
 
@@ -202,9 +216,12 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         project.task(TASK_HIDE_SECRET)
         {
             dependsOn(TASK_UNZIP_HIDDEN_SECRETS)
-            dependsOn(TASK_COPY_CPP)
-            dependsOn(TASK_COPY_KOTLIN)
+
             doLast {
+                //Copy files if they do not exist
+                copyCppFiles()
+                copyKotlinFiles()
+
                 val keyName = getKeyNameParam()
                 val packageName = getPackageNameParam()
                 val obfuscatedKey = getObfuscatedKey()

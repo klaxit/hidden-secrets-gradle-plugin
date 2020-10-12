@@ -39,18 +39,6 @@ buildscript {
     }
 }
 
-android {
-
-    ...
-
-    // Enable NDK build
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-        }
-    }
-}
-
 ...
 
 // Apply HiddenSecretsPlugin to the project
@@ -69,14 +57,29 @@ The parameter `keyName` is optional, by default the key name is randomly generat
 The parameter `package` is optional, by default the `applicationId` of your project will be used.
 
 # 3 - Get your secret key in your app
-👏 You can now get your secret key from Java/Kotlin code by calling :
+Enable C++ files compilation by adding this lines in the app level `build.gradle` :
+```gradle
+android {
+
+    ...
+
+    // Enable NDK build
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+}
+```
+
+👏 Now you can get your secret key from Java/Kotlin code by calling :
 ```kotlin
 // Kotlin
 val key = Secrets().getYourSecretKeyName(packageName)
 ```
 ```Java
 // Java
-String key = new Secrets().getYourSecretKeyName(getPackageName());
+final String key = new Secrets().getYourSecretKeyName(getPackageName());
 ```
 
 # 4 - (Optional) Improve your key security
@@ -115,21 +118,20 @@ Secrets().getYourSecretKeyName(packageName)
 ```
 
 ## Other available commands
-Unzip `.jar` file in `/build/` temporary directory :
-```shell
-gradle unzipHiddenSecrets
-```
 
+### Copy files
 Copy required files to your project :
 ```shell
 gradle copyCpp
 gradle copyKotlin [-Ppackage=your.package.name]
 ```
 
+### Obfuscate
 Create an obfuscated key and display it :
 ```shell
 gradle obfuscate -Pkey=yourKeyToObfuscate [-Ppackage=com.your.package]
 ```
+This command can be useful if you modify your app's package name based on `buildTypes` configuration. With this command you can get the obfuscated key for a different package name and manually integrate it in another function in `secrets.cpp`.
 
 ## Development
 
