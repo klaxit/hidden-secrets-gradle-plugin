@@ -1,4 +1,4 @@
-![travis ci status](https://travis-ci.com/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
+![travis ci status](https://travis-ci.org/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
 
 # Gradle plugin to deeply hide secrets on Android
 
