@@ -1,4 +1,5 @@
 ![travis ci status](https://travis-ci.org/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
+[![MIT license](https://img.shields.io/github/license/klaxit/hidden-secrets-gradle-plugin)](https://github.com/klaxit/hidden-secrets-gradle-plugin/blob/master/LICENSE)
 
 # Gradle plugin to deeply hide secrets on Android
 
@@ -119,6 +120,29 @@ void customDecode(char *str) {
 This method is automatically called and will revert the rot13 applied on your key when you will call :
 ```kotlin
 Secrets().getYourSecretKeyName(packageName)
+```
+# Going further
+## Hide secrets for different package names
+If your app is configured with different `applicationIdSuffix` depending on build types, your application's package name will change based on which build type your are running. You will need to specifiy which key to use for each `applicationIdSuffix`.
+
+For example, considering your default app package is `com.your.package` and you have a debug app configured as `com.your.package.debug`.
+
+1) Hide first the key "AAA" for your default package by calling :
+```shell
+gradle hideSecret -Pkey=AAA
+```
+2) Then hide the key "BBB" for your other app suffix by specifying the complete package name including the suffix :
+```shell
+gradle hideSecret -Pkey=BBB -Ppackage=com.your.package.debug
+```
+3) Create a function to get the key based on build type :
+```kotlin
+ fun getSecretKey(packageName: String): String {
+        if (BuildConfig.BUILD_TYPE == YourConstants.BUILD_TYPE_DEBUG) {
+            return getProductionKey(packageName) // Will return "AAA"
+        }
+        return getDebugKey(packageName) // Will return "BBB"
+    }
 ```
 
 ## Other available commands

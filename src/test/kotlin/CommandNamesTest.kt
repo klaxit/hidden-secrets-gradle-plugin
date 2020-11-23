@@ -12,4 +12,5 @@ class CommandNamesTest : StringSpec({
     HiddenSecretsPlugin.TASK_HIDE_SECRET shouldBe "hideSecret"
     HiddenSecretsPlugin.TASK_OBFUSCATE shouldBe "obfuscate"
     HiddenSecretsPlugin.TASK_PACKAGE_NAME shouldBe "packageName"
+    HiddenSecretsPlugin.TASK_FIND_KOTLIN_FILE shouldBe "findKotlinFile"
 })

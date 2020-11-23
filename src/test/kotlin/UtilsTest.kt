@@ -11,7 +11,8 @@ class UtilsTest : WordSpec({
 
     "Using getUnderScoredPackageName()" should {
         "transform package separator" {
-            Utils.getUnderScoredPackageName(packageName) shouldBe "com_klaxit_test"
+            val sourcePackage = "com.klaxit.test"
+            Utils.getSnakeCasePackageName(sourcePackage) shouldBe "com_klaxit_test"
         }
     }
 

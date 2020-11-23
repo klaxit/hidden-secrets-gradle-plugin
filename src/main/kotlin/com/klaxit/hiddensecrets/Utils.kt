@@ -10,7 +10,7 @@ object Utils {
     /**
      * Transform package name com.klaxit.hidden to com_klaxit_hidden to ingrate in C++ code
      */
-    fun getUnderScoredPackageName(packageName: String): String {
+    fun getSnakeCasePackageName(packageName: String): String {
         val packageComponents = packageName.split(".")
         var packageStr = ""
         val iterator: Iterator<String> = packageComponents.iterator()
