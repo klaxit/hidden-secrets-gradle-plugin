@@ -267,6 +267,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 } else {
                     error("Missing Kotlin file, please run gradle task : $TASK_COPY_KOTLIN")
                 }
+
                 //Resolve package name for C++ from the one used in Kotlin file
                 var kotlinPackage = Utils.getKotlinFilePackage(secretsKotlin)
                 if (kotlinPackage.isEmpty()) {
