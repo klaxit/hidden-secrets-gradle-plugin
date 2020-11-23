@@ -52,5 +52,10 @@ class HiddenSecretsTest : WordSpec({
             println(result.output)
             result.output shouldContain packageName
         }
+
+        "Make command ${HiddenSecretsPlugin.TASK_FIND_KOTLIN_FILE} succeed" {
+            val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_FIND_KOTLIN_FILE).build()
+            println(result.output)
+        }
     }
 })
