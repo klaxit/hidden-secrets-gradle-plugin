@@ -19,6 +19,9 @@ open class HiddenSecretsPlugin : Plugin<Project> {
     companion object {
         private const val APP_MAIN_FOLDER = "src/main/"
         private const val DEFAULT_KEY_NAME_LENGTH = 8
+        private const val KEY_PLACEHOLDER = "YOUR_KEY_GOES_HERE"
+        private const val PACKAGE_PLACEHOLDER = "YOUR_PACKAGE_GOES_HERE"
+        private const val KOTLIN_FILE_NAME = "Secrets.kt"
 
         //Tasks
         const val TASK_UNZIP_HIDDEN_SECRETS = "unzipHiddenSecrets"
@@ -27,6 +30,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         const val TASK_HIDE_SECRET = "hideSecret"
         const val TASK_OBFUSCATE = "obfuscate"
         const val TASK_PACKAGE_NAME = "packageName"
+        const val TASK_FIND_KOTLIN_FILE = "findKotlinFile"
 
         //Properties
         private const val KEY = "key"
@@ -74,7 +78,6 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         @Input
         fun getPackageNameParam(): String {
-            //From config
             var packageName: String? = null
             if (project.hasProperty(PACKAGE)) {
                 //From command line
@@ -95,7 +98,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         @Input
         fun getKeyNameParam(): String {
-            val chars = ('a'..'Z') + ('A'..'Z')
+            val chars = ('a'..'z') + ('A'..'Z')
             // Default random key name
             var keyName = List(DEFAULT_KEY_NAME_LENGTH) { chars.random() }.joinToString("")
             if (project.hasProperty(KEY_NAME)) {
@@ -136,10 +139,17 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             }
             val directory = project.file(path)
             if (!directory.exists()) {
-                error("Directory $path does not exist in the project, you might have selected a wrong package.")
+                println("Directory $path does not exist in the project, you might have selected a wrong package.")
             }
             path += fileName
             return project.file(path)
+        }
+
+        /**
+         * If found, returns the Secrets.kt file in the Android app
+         */
+        fun getKotlinFile(): File? {
+            return Utils.findFileInProject(project, APP_MAIN_FOLDER, KOTLIN_FILE_NAME)
         }
 
         /**
@@ -149,7 +159,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             project.file("$tmpFolder/cpp/").listFiles()?.forEach {
                 val destination = getCppDestination(it.name)
                 if (destination.exists()) {
-                    println(it.name + " already exists")
+                    println("${it.name} already exists")
                 } else {
                     println("Copy $it.name to\n$destination")
                     it.copyTo(destination, true)
@@ -158,14 +168,18 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * Copy Kotlin files from the lib to the Android project if they don't exist yet
+         * Copy Kotlin file Secrets.kt from the lib to the Android project if it does not exist yet
          */
-        fun copyKotlinFiles() {
+        fun copyKotlinFile() {
+            if (getKotlinFile() != null) {
+                println("$KOTLIN_FILE_NAME already exists")
+                return
+            }
             val packageName = getPackageNameParam()
             project.file("$tmpFolder/kotlin/").listFiles()?.forEach {
                 val destination = getKotlinDestination(packageName, it.name)
                 if (destination.exists()) {
-                    println(it.name + " already exists")
+                    println("${it.name} already exists")
                 } else {
                     println("Copy $it.name to\n$destination")
                     it.copyTo(destination, true)
@@ -177,15 +191,15 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          * Unzip plugin into tmp directory
          */
         project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::class.java,
-                object : Action<Copy?> {
-                    @TaskAction
-                    override fun execute(copy: Copy) {
-                        // in the case of buildSrc dir
-                        copy.from(project.zipTree(javaClass.protectionDomain.codeSource.location!!.toExternalForm()))
-                        println("Unzip jar to $tmpFolder")
-                        copy.into(tmpFolder)
-                    }
-                })
+            object : Action<Copy?> {
+                @TaskAction
+                override fun execute(copy: Copy) {
+                    // in the case of buildSrc dir
+                    copy.from(project.zipTree(javaClass.protectionDomain.codeSource.location!!.toExternalForm()))
+                    println("Unzip jar to $tmpFolder")
+                    copy.into(tmpFolder)
+                }
+            })
 
         /**
          * Copy C++ files to your project
@@ -203,7 +217,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         project.task(TASK_COPY_KOTLIN)
         {
             doLast {
-                copyKotlinFiles()
+                copyKotlinFile()
             }
         }
 
@@ -225,45 +239,27 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             dependsOn(TASK_UNZIP_HIDDEN_SECRETS)
 
             doLast {
-                //Copy files if they do not exist
+                //Assert that the key is present
+                getKeyParam()
+                //Copy files if they don't exist
                 copyCppFiles()
-                copyKotlinFiles()
+                copyKotlinFile()
 
                 val keyName = getKeyNameParam()
                 val packageName = getPackageNameParam()
                 val obfuscatedKey = getObfuscatedKey()
 
-                //Add obfuscated key in C++ code
-                val secretsCpp = getCppDestination("secrets.cpp")
-                if (secretsCpp.exists()) {
-                    var text = secretsCpp.readText(Charset.defaultCharset())
-                    if (text.contains(obfuscatedKey)) {
-                        println("Key already added in C++ !")
-                    }
-                    if (text.contains("YOUR_KEY_GOES_HERE")) {
-                        //Replace package name
-                        text = text.replace("YOUR_PACKAGE_GOES_HERE", Utils.getUnderScoredPackageName(packageName))
-                        //Replace key name
-                        text = text.replace("YOUR_KEY_NAME_GOES_HERE", keyName)
-                        //Replace demo key
-                        text = text.replace("{YOUR_KEY_GOES_HERE}", obfuscatedKey)
-                        secretsCpp.writeText(text)
-                    } else {
-                        //Add new key
-                        text += CodeGenerator.getCppCode(packageName, keyName, obfuscatedKey)
-                        secretsCpp.writeText(text)
-                    }
-                } else {
-                    error("Missing C++ file, please run gradle task : $TASK_COPY_CPP")
-                }
-
                 //Add method in Kotlin code
-                val secretsKotlin = getKotlinDestination(packageName, "Secrets.kt")
+                var secretsKotlin = getKotlinFile()
+                if (secretsKotlin == null) {
+                    //File not found in project
+                    secretsKotlin = getKotlinDestination(packageName, KOTLIN_FILE_NAME)
+                }
                 if (secretsKotlin.exists()) {
                     var text = secretsKotlin.readText(Charset.defaultCharset())
-                    text = text.replace("YOUR_PACKAGE_GOES_HERE", packageName)
+                    text = text.replace(PACKAGE_PLACEHOLDER, packageName)
                     if (text.contains(keyName)) {
-                        println("Method already added in Kotlin !")
+                        println("⚠️ Method already added in Kotlin !")
                     }
                     text = text.dropLast(1)
                     text += CodeGenerator.getKotlinCode(keyName)
@@ -271,8 +267,38 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 } else {
                     error("Missing Kotlin file, please run gradle task : $TASK_COPY_KOTLIN")
                 }
+                //Resolve package name for Cs++ from the one used in Kotlin file
+                var kotlinPackage = Utils.getKotlinFilePackage(secretsKotlin)
+                if (kotlinPackage.isEmpty()) {
+                    println("Empty package in $KOTLIN_FILE_NAME")
+                    kotlinPackage = packageName
+                }
 
-                println("You can now get your secret key by calling : Secrets().get$keyName(packageName)")
+                //Add obfuscated key in C++ code
+                val secretsCpp = getCppDestination("secrets.cpp")
+                if (secretsCpp.exists()) {
+                    var text = secretsCpp.readText(Charset.defaultCharset())
+                    if (text.contains(obfuscatedKey)) {
+                        println("⚠️ Key already added in C++ !")
+                    }
+                    if (text.contains(KEY_PLACEHOLDER)) {
+                        //Edit placeholder key
+                        //Replace package name
+                        text = text.replace(PACKAGE_PLACEHOLDER, Utils.getSnakeCasePackageName(kotlinPackage))
+                        //Replace key name
+                        text = text.replace("YOUR_KEY_NAME_GOES_HERE", keyName)
+                        //Replace demo key
+                        text = text.replace(KEY_PLACEHOLDER, obfuscatedKey)
+                        secretsCpp.writeText(text)
+                    } else {
+                        //Add new key
+                        text += CodeGenerator.getCppCode(kotlinPackage, keyName, obfuscatedKey)
+                        secretsCpp.writeText(text)
+                    }
+                } else {
+                    error("Missing C++ file, please run gradle task : $TASK_COPY_CPP")
+                }
+                println("✅ You can now get your secret key by calling : Secrets().get$keyName(packageName)")
             }
         }
 
@@ -283,6 +309,15 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         {
             doLast {
                 println("APP PACKAGE NAME = " + getPackageNameParam())
+            }
+        }
+
+        /**
+         * Find Secrets.kt file in the project
+         */
+        project.task(TASK_FIND_KOTLIN_FILE) {
+            doLast {
+                getKotlinFile()
             }
         }
     }

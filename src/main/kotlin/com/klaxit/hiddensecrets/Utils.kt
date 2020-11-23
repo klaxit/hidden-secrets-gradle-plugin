@@ -1,6 +1,8 @@
 package com.klaxit.hiddensecrets
 
 import com.google.common.annotations.VisibleForTesting
+import org.gradle.api.Project
+import java.io.File
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import kotlin.experimental.xor
@@ -10,7 +12,7 @@ object Utils {
     /**
      * Transform package name com.klaxit.hidden to com_klaxit_hidden to ingrate in C++ code
      */
-    fun getUnderScoredPackageName(packageName: String): String {
+    fun getSnakeCasePackageName(packageName: String): String {
         val packageComponents = packageName.split(".")
         var packageStr = ""
         val iterator: Iterator<String> = packageComponents.iterator()
@@ -62,5 +64,32 @@ object Utils {
         }
         encoded += " }"
         return encoded
+    }
+
+    /**
+     * Search a file in the finale project, can provide a path to limit the search in some folders
+     */
+    fun findFileInProject(project: Project, path: String, fileName: String): File? {
+        val directory = project.file(path)
+        directory.walkBottomUp().forEach {
+            if (it.name == fileName) {
+                println("$fileName found in ${it.absolutePath}\n")
+                return it
+            }
+        }
+        println("$fileName not found in $path")
+        return null
+    }
+
+    /**
+     * Return package from first line of a kotlin file
+     */
+    fun getKotlinFilePackage(file: File): String {
+        var text = file.readLines(Charset.defaultCharset())[0]
+        text = text.replace("package ", "")
+        // Handle package name using keywords
+        text = text.replace("`", "")
+        println("Package : $text found in ${file.name}")
+        return text
     }
 }
