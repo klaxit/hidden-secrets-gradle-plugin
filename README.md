@@ -8,7 +8,7 @@ It uses a combination of obfuscation techniques to do so :
 - secret is obfuscated using the reversible XOR operator so it never appears in plain sight,
 - obfuscated secret is stored in a NDK binary as an hexadecimal array, so it is really hard to spot / put together from a disassembly,
 - the obfuscating string is not persisted in the binary to force runtime evaluation (ie : prevent the compiler from disclosing the secret by optimizing the de-obfuscation logic),
-- optionnaly, anyone can provide it's own encoding / decoding algorithm when using the plugin to add an additional security layer.
+- optionally, anyone can provide its own encoding / decoding algorithm when using the plugin to add an additional security layer.
 
 This plugin is **used in production** at [Klaxit - Covoiturage quotidien](https://play.google.com/store/apps/details?id=com.wayzup.wayzupapp). Our engineering team at Klaxit will provide its best effort to maintain this project.
 
@@ -55,7 +55,7 @@ For more details about the installation check the [plugin's page](https://plugin
 
 Obfuscate and hide your key in your project :
 ```shell
-gradle hideSecret -Pkey=yourKeyToObfuscate [-PkeyName=YourSecretKeyName] [-Ppackage=com.your.package]
+./gradlew hideSecret -Pkey=yourKeyToObfuscate [-PkeyName=YourSecretKeyName] [-Ppackage=com.your.package]
 ```
 The parameter `keyName` is optional, by default the key name is randomly generated.
 The parameter `package` is optional, by default the `applicationId` of your project will be used.
@@ -94,7 +94,7 @@ As an example, we will use a [rot13 algorithm](https://en.wikipedia.org/wiki/ROT
 After a rot13 encoding your key `yourKeyToObfuscate` becomes `lbheXrlGbBoshfpngr`.
 Add it in your app :
 ```shell
-gradle hideSecret -Pkey=lbheXrlGbBoshfpngr -PkeyName=YourSecretKeyName
+./gradlew hideSecret -Pkey=lbheXrlGbBoshfpngr -PkeyName=YourSecretKeyName
 ```
 
 Then in `secrets.cpp` you need to add your own decoding code in `customDecode` method:
@@ -126,14 +126,14 @@ Secrets().getYourSecretKeyName(packageName)
 ### Copy files
 Copy required files to your project :
 ```shell
-gradle copyCpp
-gradle copyKotlin [-Ppackage=your.package.name]
+./gradlew copyCpp
+./gradlew copyKotlin [-Ppackage=your.package.name]
 ```
 
 ### Obfuscate
 Create an obfuscated key and display it :
 ```shell
-gradle obfuscate -Pkey=yourKeyToObfuscate [-Ppackage=com.your.package]
+./gradlew obfuscate -Pkey=yourKeyToObfuscate [-Ppackage=com.your.package]
 ```
 This command can be useful if you modify your app's package name based on `buildTypes` configuration. With this command you can get the obfuscated key for a different package name and manually integrate it in another function in `secrets.cpp`.
 
@@ -141,9 +141,12 @@ This command can be useful if you modify your app's package name based on `build
 
 Pull Requests are very welcome!
 
-To get started, checkout the code and run `gradle build` to create the `.jar` file in `/build/libs/`.
+To get started, checkout the code and run `./gradlew build` to create the `.jar` file in `/build/libs/`.
 
-Please make sure that you have tested your code carefully before opening a PR, and make sure as well that you have no style issues.
+Before opening a PR :
+- make sure that you have tested your code carefully
+- `/gradlew test` must succeed
+- `/gradlew detekt` must succeed to avoid any style issue
 
 ## Authors
 
