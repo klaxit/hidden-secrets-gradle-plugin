@@ -22,30 +22,34 @@ This gradle plugin can be used with any Android project in Java or Kotlin.
 
 # 1 - Install the plugin
 
-Get the latest version of the plugin from [releases](https://github.com/klaxit/hidden-secrets-gradle-plugin/releases).
-Copy `HiddenSecretsPlugin-X.Y.Z.jar` to your Android project in `/app/libs/` folder.
+## Using the plugins DSL
+In your app level `build.gradle`:
 
+```gradle
+plugins {
+    id "com.klaxit.hiddensecrets" version "X.Y.Z"
+}
+```
+
+## Using legacy plugin application
 Add these lines in your app level `build.gradle`:
 
 ```gradle
 buildscript {
-    // Folder app/libs/ will be crawled
     repositories {
-        flatDir { dirs 'libs' }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
-    // Add dependency to HiddenSecretsPlugin
     dependencies {
-        classpath("com.klaxit.hiddensecrets.gradle:HiddenSecretsPlugin:X.Y.Z")
+        classpath "com.klaxit.hiddensecrets:HiddenSecretsPlugin:X.Y.Z"
     }
 }
 
-...
-
-// Apply HiddenSecretsPlugin to the project
 apply plugin: 'com.klaxit.hiddensecrets'
 ```
 
-Then sync your Android project.
+For more details about the installation check the [plugin's page](https://plugins.gradle.org/plugin/com.klaxit.hiddensecrets) on gradle.org.
 
 # 2 - Hide secret key in your project
 
