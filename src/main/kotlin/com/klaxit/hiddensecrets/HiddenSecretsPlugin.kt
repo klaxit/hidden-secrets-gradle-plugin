@@ -18,6 +18,7 @@ import java.nio.charset.Charset
 open class HiddenSecretsPlugin : Plugin<Project> {
     companion object {
         private const val APP_MAIN_FOLDER = "src/main/"
+        private const val DEFAULT_KEY_NAME_LENGTH = 8
 
         //Tasks
         private const val TASK_UNZIP_HIDDEN_SECRETS = "unzipHiddenSecrets"
@@ -26,6 +27,11 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         private const val TASK_OBFUSCATE = "obfuscate"
         private const val TASK_HIDE_SECRET = "hideSecret"
         private const val TASK_PACKAGE_NAME = "packageName"
+
+        //Properties
+        private const val KEY = "key"
+        private const val KEY_NAME = "keyName"
+        private const val PACKAGE = "package"
 
         //Errors
         private const val ERROR_EMPTY_KEY = "No key provided, use argument '-Pkey=yourKey'"
@@ -54,9 +60,9 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         @Input
         fun getKeyParam(): String {
             val key: String
-            if (project.hasProperty("key")) {
+            if (project.hasProperty(KEY)) {
                 //From command line
-                key = project.property("key") as String
+                key = project.property(KEY) as String
             } else {
                 throw InvalidUserDataException(ERROR_EMPTY_KEY)
             }
@@ -70,9 +76,9 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         fun getPackageNameParam(): String {
             //From config
             var packageName: String? = null
-            if (project.hasProperty("package")) {
+            if (project.hasProperty(PACKAGE)) {
                 //From command line
-                packageName = project.property("package") as String?
+                packageName = project.property(PACKAGE) as String?
             }
             if (packageName.isNullOrEmpty()) {
                 //From Android app
@@ -90,10 +96,11 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         @Input
         fun getKeyNameParam(): String {
             val chars = ('a'..'Z') + ('A'..'Z')
-            var keyName = List(8) { chars.random() }.joinToString("")
-            if (project.hasProperty("keyName")) {
+            // Default random key name
+            var keyName = List(DEFAULT_KEY_NAME_LENGTH) { chars.random() }.joinToString("")
+            if (project.hasProperty(KEY_NAME)) {
                 //From command line
-                keyName = project.property("keyName") as String
+                keyName = project.property(KEY_NAME) as String
             } else {
                 println("Key name has been randomized, chose your own key name by adding argument '-PkeyName=yourName'")
             }
