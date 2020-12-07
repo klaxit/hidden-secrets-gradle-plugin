@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting
 import java.nio.charset.Charset
 import java.security.MessageDigest
 import kotlin.experimental.xor
+import kotlin.random.Random
 
 object Utils {
 
@@ -62,5 +63,14 @@ object Utils {
         }
         encoded += " }"
         return encoded
+    }
+
+    /**
+     * Return a random name
+     */
+    fun getRandomName(): String {
+        val allowedChars = ('a'..'z') + ('A'..'Z')
+        val length = Random.nextInt(4, 12)
+        return List(length) { allowedChars.random() }.joinToString("")
     }
 }

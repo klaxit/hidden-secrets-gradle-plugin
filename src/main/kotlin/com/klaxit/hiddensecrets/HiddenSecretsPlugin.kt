@@ -18,10 +18,10 @@ import java.nio.charset.Charset
 open class HiddenSecretsPlugin : Plugin<Project> {
     companion object {
         private const val APP_MAIN_FOLDER = "src/main/"
-        private const val DEFAULT_KEY_NAME_LENGTH = 8
         private const val KEY_PLACEHOLDER = "YOUR_KEY_GOES_HERE"
         private const val PACKAGE_PLACEHOLDER = "YOUR_PACKAGE_GOES_HERE"
         private const val KOTLIN_FILE_NAME = "Secrets.kt"
+        private const val DEFAULT_LIB_NAME = "secrets"
 
         //Tasks
         const val TASK_UNZIP_HIDDEN_SECRETS = "unzipHiddenSecrets"
@@ -31,6 +31,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         const val TASK_OBFUSCATE = "obfuscate"
         const val TASK_PACKAGE_NAME = "packageName"
         const val TASK_FIND_KOTLIN_FILE = "findKotlinFile"
+        const val TASK_MIGRATE = "migrate"
 
         //Properties
         private const val KEY = "key"
@@ -98,9 +99,8 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         @Input
         fun getKeyNameParam(): String {
-            val chars = ('a'..'Z') + ('A'..'Z')
             // Default random key name
-            var keyName = List(DEFAULT_KEY_NAME_LENGTH) { chars.random() }.joinToString("")
+            var keyName = Utils.getRandomName()
             if (project.hasProperty(KEY_NAME)) {
                 //From command line
                 keyName = project.property(KEY_NAME) as String
@@ -146,15 +146,15 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * Return the path to the Secrets.kt file in the Android app
+         * Return the path to the file in the Android app
          */
-        fun getSecretsKotlinFile(): File? {
+        fun findFileInProject(fileName: String): File? {
             val directory = project.file(APP_MAIN_FOLDER)
             directory.walkBottomUp().forEach {
                 //print("\n")
                 //print(it)
-                if (it.name == KOTLIN_FILE_NAME) {
-                    print("$KOTLIN_FILE_NAME found in ${it.absolutePath}\n")
+                if (it.name == fileName) {
+                    print("$fileName found in ${it.absolutePath}\n")
                     return it
                 }
             }
@@ -279,7 +279,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 }
 
                 //Add method in Kotlin code
-                var secretsKotlin = getSecretsKotlinFile()
+                var secretsKotlin = findFileInProject(KOTLIN_FILE_NAME)
                 if (secretsKotlin == null) {
                     //File not found in project
                     secretsKotlin = getKotlinDestination(packageName, KOTLIN_FILE_NAME)
@@ -316,7 +316,32 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         project.task(TASK_FIND_KOTLIN_FILE) {
             doLast {
-                getSecretsKotlinFile()
+                findFileInProject(KOTLIN_FILE_NAME)
+            }
+        }
+
+        fun renameLib() {
+            val cMake = findFileInProject("CMakeLists.txt")
+            if (cMake == null || !cMake.exists()) {
+                error("CMake file not found in project, did you use 'hideSecret' command ?")
+            }
+            var text = cMake.readText(Charset.defaultCharset())
+            val defaultLibName = "secrets\n"
+            if (text.contains(defaultLibName)) {
+                val randomLibName = Utils.getRandomName().toLowerCase()
+                text = text.replace(defaultLibName, randomLibName)
+                println("Lib name randomized to $randomLibName")
+            } else {
+                println("Lib already renamed")
+            }
+            cMake.writeText(text)
+
+            //TODO rename in System.loadLibrary("secrets")
+        }
+
+        project.task(TASK_MIGRATE) {
+            doLast {
+                renameLib()
             }
         }
     }

@@ -1,6 +1,7 @@
 import com.klaxit.hiddensecrets.Utils
 import io.kotest.core.spec.style.WordSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldNotBeEqualIgnoringCase
 
 /**
  * Test Utils methods.
@@ -31,6 +32,16 @@ class UtilsTest : WordSpec({
         "encode String with special characters" {
             val key = "@&é(§èçà)-ù,;:=#°_*%£?./+"
             Utils.encodeSecret(key, packageName) shouldBe "{ 0x70, 0x45, 0xa2, 0xcc, 0x4c, 0xf5, 0x9e, 0xa5, 0x9a, 0xf0, 0xc1, 0xa6, 0x92, 0x4a, 0x4e, 0xa6, 0x8a, 0x1a, 0xc, 0x5e, 0x5, 0x14, 0xf7, 0x86, 0x6b, 0x13, 0x40, 0xf5, 0x9a, 0xc, 0x16, 0x16, 0x19 }"
+        }
+    }
+
+    "Using getRandomName()" should {
+        "return a random name" {
+            val randomName = Utils.getRandomName()
+            val randomName2 = Utils.getRandomName()
+            println("R1 : $randomName")
+            println("R2 : $randomName2")
+            randomName shouldNotBeEqualIgnoringCase randomName2
         }
     }
 })

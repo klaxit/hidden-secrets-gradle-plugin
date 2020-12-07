@@ -88,6 +88,7 @@ final String key = new Secrets().getYourSecretKeyName(getPackageName());
 ```
 
 # 4 - (Optional) Improve your key security
+## Add custom decode function
 You can improve the security of your keys by using your own custom encoding / decoding algorithm. The keys will be persisted in C++, additionally encoded using your custom algorithm. The decoding algorithm will also be compiled. So an attacker will also have to reverse-engineer it from compiled C++ to find your keys.
 
 As an example, we will use a [rot13 algorithm](https://en.wikipedia.org/wiki/ROT13) to encode / decode our key. Of course, don't use rot13 in your own project, it won't provide any additional security. Find your own "secret" encoding/decoding algorithm!
@@ -121,6 +122,13 @@ This method is automatically called and will revert the rot13 applied on your ke
 ```kotlin
 Secrets().getYourSecretKeyName(packageName)
 ```
+
+## Change the random name of the library
+By default, the name of the library is randomized in your Android application (from version 0.2.0) to make it less obvious that you used this plugin.
+You can also chose another name to make it even harder to guess by possible hackers.
+
+1) After you hide your first secret, in your project rename the random library name in `CMakeLists.txt` by any keyword you want.
+2) Change the random name in `Secrets.kt` in `System.loadLibrary("randomName")`
 # Going further
 ## Hide secrets for different package names
 If your app is configured with different `applicationIdSuffix` depending on build types, your application's package name will change based on which build type your are running. You will need to specifiy which key to use for each `applicationIdSuffix`.
