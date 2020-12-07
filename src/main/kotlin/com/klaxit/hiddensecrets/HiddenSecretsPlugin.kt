@@ -21,12 +21,12 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         private const val DEFAULT_KEY_NAME_LENGTH = 8
 
         //Tasks
-        private const val TASK_UNZIP_HIDDEN_SECRETS = "unzipHiddenSecrets"
-        private const val TASK_COPY_CPP = "copyCpp"
-        private const val TASK_COPY_KOTLIN = "copyKotlin"
-        private const val TASK_OBFUSCATE = "obfuscate"
-        private const val TASK_HIDE_SECRET = "hideSecret"
-        private const val TASK_PACKAGE_NAME = "packageName"
+        const val TASK_UNZIP_HIDDEN_SECRETS = "unzipHiddenSecrets"
+        const val TASK_COPY_CPP = "copyCpp"
+        const val TASK_COPY_KOTLIN = "copyKotlin"
+        const val TASK_HIDE_SECRET = "hideSecret"
+        const val TASK_OBFUSCATE = "obfuscate"
+        const val TASK_PACKAGE_NAME = "packageName"
 
         //Properties
         private const val KEY = "key"

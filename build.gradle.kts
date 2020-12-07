@@ -16,9 +16,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.0.0")
+    implementation("com.android.tools.build:gradle:4.0.2")
 
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.1.11")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.3.1")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:4.3.1")
     testImplementation("junit:junit:4.13.1")
 }
 

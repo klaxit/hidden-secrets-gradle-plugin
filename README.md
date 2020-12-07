@@ -145,8 +145,8 @@ To get started, checkout the code and run `./gradlew build` to create the `.jar`
 
 Before opening a PR :
 - make sure that you have tested your code carefully
-- `/gradlew test` must succeed
-- `/gradlew detekt` must succeed to avoid any style issue
+- `./gradlew test` must succeed
+- `./gradlew detekt` must succeed to avoid any style issue
 
 ## Authors
 
