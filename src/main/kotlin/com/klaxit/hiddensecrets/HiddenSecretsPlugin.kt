@@ -1,6 +1,7 @@
 package com.klaxit.hiddensecrets
 
 import com.android.build.gradle.AppExtension
+import com.klaxit.hiddensecrets.task.CopyCppTask
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
@@ -17,7 +18,7 @@ import java.nio.charset.Charset
  */
 open class HiddenSecretsPlugin : Plugin<Project> {
     companion object {
-        private const val APP_MAIN_FOLDER = "src/main/"
+        const val APP_MAIN_FOLDER = "src/main/"
         private const val DEFAULT_KEY_NAME_LENGTH = 8
         private const val KEY_PLACEHOLDER = "YOUR_KEY_GOES_HERE"
         private const val PACKAGE_PLACEHOLDER = "YOUR_PACKAGE_GOES_HERE"
@@ -204,12 +205,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         /**
          * Copy C++ files to your project
          */
-        project.task(TASK_COPY_CPP)
-        {
-            doLast {
-                copyCppFiles()
-            }
-        }
+        project.tasks.register(TASK_COPY_CPP, CopyCppTask::class.java)
 
         /**
          * Copy Kotlin file to your project
