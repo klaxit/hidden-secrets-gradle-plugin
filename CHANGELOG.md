@@ -1,3 +1,6 @@
+# v0.1.2
+###Improvements
+* Tasks are in separated files to improve maintainability. 
 # v0.1.1
 ###Fixes
 * Fix sha256 generation : long keys are now decoded correctly. Reported in https://github.com/klaxit/hidden-secrets-gradle-plugin/issues/16

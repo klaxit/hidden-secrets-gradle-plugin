@@ -1,5 +1,6 @@
 package com.klaxit.hiddensecrets
 
+import com.android.build.gradle.AppExtension
 import com.google.common.annotations.VisibleForTesting
 import org.gradle.api.Project
 import java.io.File
@@ -7,6 +8,9 @@ import java.nio.charset.Charset
 import java.security.MessageDigest
 import kotlin.experimental.xor
 
+/**
+ * Utils functions.
+ */
 object Utils {
 
     /**
@@ -91,5 +95,28 @@ object Utils {
         text = text.replace("`", "")
         println("Package : $text found in ${file.name}")
         return text
+    }
+
+    /**
+     * If found, returns the Secrets.kt file in the Android app
+     */
+    fun getKotlinFile(project: Project): File? {
+        return findFileInProject(
+            project,
+            Constants.APP_MAIN_FOLDER,
+            Constants.KOTLIN_FILE_NAME
+        )
+    }
+
+    /**
+     * Get the package name of the Android app on which this plugin is used
+     */
+    fun getAppPackageName(project: Project): String? {
+        val androidExtension = project.extensions.getByName("android")
+
+        if (androidExtension is AppExtension) {
+            return androidExtension.defaultConfig.applicationId
+        }
+        return null
     }
 }
