@@ -1,8 +1,8 @@
 # v0.1.1
-###Fixes
+### Fixes
 * Fix sha256 generation : long keys are now decoded correctly. Reported in https://github.com/klaxit/hidden-secrets-gradle-plugin/issues/16
 * Random string generation was not including lower case characters
-###Improvements
+### Improvements
 * The plugin search for `Secrets.kt` to add other keys instead of using package's name to access it.
 * Resolve package from the Kotlin file to edit the C++ file to be able to use a different package than the package of Secret.kt to encode/decode keys.
 * Clearer error message for `hideSecret` command
