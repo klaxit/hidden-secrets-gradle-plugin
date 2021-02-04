@@ -44,9 +44,12 @@ jstring getOriginalKey(
 
     // Get the obfuscating string SHA256 as the obfuscator
     const char *obfuscatingStr = pEnv->GetStringUTFChars(obfuscatingJStr, NULL);
-    const char *obfuscator = sha256(obfuscatingStr);
+    char buffer[2*SHA256::DIGEST_SIZE + 1];
 
-    // Apply a XOR between the obfuscated key and the obfuscating string to get original sting
+    sha256(obfuscatingStr, buffer);
+    const char* obfuscator = buffer;
+
+    // Apply a XOR between the obfuscated key and the obfuscating string to get original string
     char out[obfuscatedSecretSize + 1];
     for (int i = 0; i < obfuscatedSecretSize; i++) {
         out[i] = obfuscatedSecret[i] ^ obfuscator[i % strlen(obfuscator)];
@@ -67,6 +70,6 @@ Java_YOUR_PACKAGE_GOES_HERE_Secrets_getYOUR_KEY_NAME_GOES_HERE(
         JNIEnv *pEnv,
         jobject pThis,
         jstring packageName) {
-    char obfuscatedSecret[] = {YOUR_KEY_GOES_HERE};
+    char obfuscatedSecret[] = YOUR_KEY_GOES_HERE;
     return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), packageName, pEnv);
 }

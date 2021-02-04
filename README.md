@@ -1,4 +1,5 @@
-![travis ci status](https://travis-ci.org/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)
+[![travis ci status](https://travis-ci.org/klaxit/hidden-secrets-gradle-plugin.svg?branch=master)](https://travis-ci.com/github/klaxit/hidden-secrets-gradle-plugin/branches)
+[![MIT license](https://img.shields.io/github/license/klaxit/hidden-secrets-gradle-plugin)](https://github.com/klaxit/hidden-secrets-gradle-plugin/blob/master/LICENSE)
 
 # Gradle plugin to deeply hide secrets on Android
 
@@ -13,9 +14,6 @@ It uses a combination of obfuscation techniques to do so :
 This plugin is **used in production** at [Klaxit - Covoiturage quotidien](https://play.google.com/store/apps/details?id=com.wayzup.wayzupapp). Our engineering team at Klaxit will provide its best effort to maintain this project.
 
 ⚠️ Nothing on the client-side is unbreakable. So generally speaking, **keeping a secret in a mobile package is not a smart idea**. But when you absolutely need to, this is the best method we have found to hide it.
-
-## This is a kotlin gradle plugin
-This project is also a demonstration on how to create a full Kotlin gradle plugin for Android projects.
 
 ## Compatibility
 This gradle plugin can be used with any Android project in Java or Kotlin.

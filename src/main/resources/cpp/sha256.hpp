@@ -8,12 +8,12 @@ protected:
     typedef unsigned int uint32;
 
     const static uint32 sha256_k[];
-    static const unsigned int SHA224_256_BLOCK_SIZE = (512/8);
+    static const unsigned int SHA224_256_BLOCK_SIZE = (512 / 8);
 public:
     void init();
     void update(const unsigned char *message, unsigned int len);
     void final(unsigned char *digest);
-    static const unsigned int DIGEST_SIZE = ( 256 / 8);
+    static const unsigned int DIGEST_SIZE = (256 / 8);
 
 protected:
     void transform(const unsigned char *message, unsigned int block_nb);
