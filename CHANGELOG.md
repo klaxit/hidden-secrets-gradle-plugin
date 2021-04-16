@@ -1,3 +1,7 @@
+# v0.1.2
+* jcenter() dependency removed
+* Moving up to gradle 6.8.3 
+* Various libraries update
 # v0.1.1
 ### Fixes
 * Fix sha256 generation : long keys are now decoded correctly. Reported in https://github.com/klaxit/hidden-secrets-gradle-plugin/issues/16
