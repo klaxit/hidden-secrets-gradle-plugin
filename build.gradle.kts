@@ -1,30 +1,28 @@
 plugins {
-    id("com.gradle.plugin-publish") version "0.12.0"
-    id("io.gitlab.arturbosch.detekt") version "1.14.2"
-    `java-gradle-plugin`
+    id("com.gradle.plugin-publish") version "0.14.0"
+    id("io.gitlab.arturbosch.detekt") version "1.16.0"
     `kotlin-dsl`
     `maven-publish`
 }
 
-group = "com.klaxit.hiddensecrets"
-version = "0.1.1"
-
 repositories {
     mavenCentral()
     google()
-    jcenter()
+    maven("https://maven.pkg.jetbrains.space/public/p/kotlinx-html/maven") // Required by detekt
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.0.2")
+    implementation("com.android.tools.build:gradle:4.1.3")
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.3.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:4.3.1")
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.4.3")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:4.4.3")
+    testImplementation("junit:junit:4.13.2")
 }
 
-configure<JavaPluginConvention> {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 pluginBundle {
@@ -38,7 +36,8 @@ gradlePlugin {
         create("HiddenSecretsPlugin") {
             id = "com.klaxit.hiddensecrets"
             displayName = "Hidden Secrets Plugin"
-            description = "This plugin allows any Android developer to deeply hide secrets in its project to prevent credentials harvesting."
+            description = "This plugin allows any Android developer" +
+                " to deeply hide secrets in its project to prevent credentials harvesting."
             implementationClass = "com.klaxit.hiddensecrets.HiddenSecretsPlugin"
         }
     }
