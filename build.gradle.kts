@@ -1,13 +1,10 @@
 plugins {
     id("com.gradle.plugin-publish") version "0.14.0"
     id("io.gitlab.arturbosch.detekt") version "1.16.0"
-    `java-library`
+    `java-gradle-plugin`
     `kotlin-dsl`
     `maven-publish`
 }
-
-group = "com.klaxit.hiddensecrets"
-version = "0.1.2"
 
 repositories {
     mavenCentral()
@@ -40,7 +37,8 @@ gradlePlugin {
         create("HiddenSecretsPlugin") {
             id = "com.klaxit.hiddensecrets"
             displayName = "Hidden Secrets Plugin"
-            description = "This plugin allows any Android developer to deeply hide secrets in its project to prevent credentials harvesting."
+            description = "This plugin allows any Android developer" +
+                " to deeply hide secrets in its project to prevent credentials harvesting."
             implementationClass = "com.klaxit.hiddensecrets.HiddenSecretsPlugin"
         }
     }
