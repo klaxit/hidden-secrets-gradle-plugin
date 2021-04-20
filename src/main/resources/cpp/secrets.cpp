@@ -29,11 +29,12 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 */
 
-void customDecode(char *str) {
+char *customDecode(char *str) {
     /* Add your own logic here
     * To improve your key security you can encode it before to integrate it in the app.
     * And then decode it with your own logic in this function.
     */
+    return str;
 }
 
 jstring getOriginalKey(
@@ -44,10 +45,10 @@ jstring getOriginalKey(
 
     // Get the obfuscating string SHA256 as the obfuscator
     const char *obfuscatingStr = pEnv->GetStringUTFChars(obfuscatingJStr, NULL);
-    char buffer[2*SHA256::DIGEST_SIZE + 1];
+    char buffer[2 * SHA256::DIGEST_SIZE + 1];
 
     sha256(obfuscatingStr, buffer);
-    const char* obfuscator = buffer;
+    const char *obfuscator = buffer;
 
     // Apply a XOR between the obfuscated key and the obfuscating string to get original string
     char out[obfuscatedSecretSize + 1];
@@ -59,9 +60,7 @@ jstring getOriginalKey(
     out[obfuscatedSecretSize] = 0x0;
 
     //(Optional) To improve key security
-    customDecode(out);
-
-    return pEnv->NewStringUTF(out);
+    return pEnv->NewStringUTF(customDecode(out));
 }
 
 extern "C"
