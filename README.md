@@ -19,17 +19,6 @@ This plugin is **used in production** at [Klaxit - Covoiturage quotidien](https:
 This gradle plugin can be used with any Android project in Java or Kotlin.
 
 # 1 - Install the plugin
-
-## Using the plugins DSL
-In your app level `build.gradle`:
-
-```gradle
-plugins {
-    id "com.klaxit.hiddensecrets" version "X.Y.Z"
-}
-```
-
-## Using legacy plugin application
 Add these lines in your app level `build.gradle`:
 
 ```gradle
