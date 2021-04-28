@@ -1,3 +1,7 @@
+# v0.2.0
+### Improvements
+* Ability to re-generate secrets from .properties file
+* Group Gradle tasks and their descriptions to convenience command `tasks`
 # v0.1.2
 ### Fixes
 * Fix call to `customDecode()` in C++ code
