@@ -584,6 +584,7 @@ style:
     excludePackageStatements: true
     excludeImportStatements: true
     excludeCommentStatements: false
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**' ]
   MayBeConst:
     active: true
   ModifierOrder:
