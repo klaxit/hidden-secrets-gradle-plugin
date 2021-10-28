@@ -128,7 +128,7 @@ If you are using CI system to provide secrets, that are not hard-coded into the 
 This is useful if you want to split production keys from repository itself, thus increasing security in your project repository. 
 
 ### Setting up
-1. Create a new properties file in root project directory (or CI creates one). 
+1. Create a new properties file in root project directory. 
 
 ``` shell
 credentials.properties
@@ -137,14 +137,14 @@ credentials.properties
 2. Fill in wanted secrets. For ex.: 
 
 ``` java-properties
-secret1=property123
-secret2=property321
+keyName1=yourKeyToObfuscate1
+keyName2=yourKeyToObfuscate2
 ```
 
 3. Run
 
 ``` shell
-./gradlew hideSecretFromProperties -PfromProps=creds.properties
+./gradlew hideSecretFromPropertiesFile -PpropertiesFileName=credentials.properties
 ```
 
 It will regenerate all secret files in the project and update all secrets from the properties file.

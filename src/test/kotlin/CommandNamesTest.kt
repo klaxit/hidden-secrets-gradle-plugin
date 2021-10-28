@@ -10,7 +10,7 @@ class CommandNamesTest : StringSpec({
     HiddenSecretsPlugin.TASK_COPY_CPP shouldBe "copyCpp"
     HiddenSecretsPlugin.TASK_COPY_KOTLIN shouldBe "copyKotlin"
     HiddenSecretsPlugin.TASK_HIDE_SECRET shouldBe "hideSecret"
-    HiddenSecretsPlugin.TASK_HIDE_SECRET_FROM_PROPS shouldBe "hideSecretFromProperties"
+    HiddenSecretsPlugin.TASK_HIDE_SECRET_FROM_PROPERTIES_FILE shouldBe "hideSecretFromPropertiesFile"
     HiddenSecretsPlugin.TASK_OBFUSCATE shouldBe "obfuscate"
     HiddenSecretsPlugin.TASK_PACKAGE_NAME shouldBe "packageName"
     HiddenSecretsPlugin.TASK_FIND_KOTLIN_FILE shouldBe "findKotlinFile"

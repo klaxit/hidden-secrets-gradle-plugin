@@ -30,7 +30,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         const val TASK_COPY_CPP = "copyCpp"
         const val TASK_COPY_KOTLIN = "copyKotlin"
         const val TASK_HIDE_SECRET = "hideSecret"
-        const val TASK_HIDE_SECRET_FROM_PROPS = "hideSecretFromProperties"
+        const val TASK_HIDE_SECRET_FROM_PROPERTIES_FILE = "hideSecretFromPropertiesFile"
         const val TASK_OBFUSCATE = "obfuscate"
         const val TASK_PACKAGE_NAME = "packageName"
         const val TASK_FIND_KOTLIN_FILE = "findKotlinFile"
@@ -39,14 +39,14 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         private const val PROP_KEY = "key"
         private const val PROP_KEY_NAME = "keyName"
         private const val PROP_PACKAGE = "package"
-        private const val PROP_FROM_PROPS = "fromProps"
+        private const val PROP_FILE_NAME = "propertiesFileName"
 
         //Errors
         private const val ERROR_EMPTY_KEY = "No key provided, use argument '-Pkey=yourKey'"
         private const val ERROR_EMPTY_PACKAGE = "Empty package name, use argument '-Ppackage=your.package.name'"
 
         // Sample usage
-        private const val SAMPLE_FROM_PROPS = "-P${PROP_FROM_PROPS}=creds.properties"
+        private const val SAMPLE_FROM_PROPS = "-P${PROP_FILE_NAME}=credentials.properties"
     }
 
     override fun apply(project: Project) {
@@ -104,9 +104,9 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          * Get properties file path to hide secrets from
          */
         @Input
-        fun getFromPropsFile(): File {
-            return if (project.hasProperty(PROP_FROM_PROPS)) {
-                val propsPathRaw: Any? = project.property(PROP_FROM_PROPS)
+        fun getPropertiesFile(): File {
+            return if (project.hasProperty(PROP_FILE_NAME)) {
+                val propsPathRaw = project.property(PROP_FILE_NAME)
                 if (propsPathRaw != null) {
                     File(project.rootDir, propsPathRaw as String)
                 } else {
@@ -124,7 +124,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          * @throws IllegalArgumentException no props found in project
          */
         @Throws(IllegalArgumentException::class)
-        fun getFromProps(propsFile: File): Properties {
+        fun getPropertiesFromFile(propsFile: File): Properties {
             if (!propsFile.exists()) {
                 throw IllegalArgumentException("Cannot find properties (${propsFile.absolutePath})!" +
                     " Use: '${SAMPLE_FROM_PROPS}'")
@@ -205,12 +205,13 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * Copy Cpp files from the lib to the Android project if they don't exist yet
+         * Copy Cpp files from the lib to the Android project
+         * @param clean whether to overwrite existing files
          */
-        fun copyCppFiles() {
+        fun copyCppFiles(clean: Boolean) {
             project.file("$tmpFolder/cpp/").listFiles()?.forEach {
                 val destination = getCppDestination(it.name)
-                if (destination.exists()) {
+                if (!clean && destination.exists()) {
                     println("${it.name} already exists")
                 } else {
                     println("Copy $it.name to\n$destination")
@@ -220,57 +221,42 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * Clean copy of Cpp files from the lib to the Android project
+         * Copy Kotlin file Secrets.kt from the lib to the Android project
+         * @param clean whether to overwrite existing files
          */
-        fun cleanCopyCppFiles() {
-            project.file("$tmpFolder/cpp/").listFiles()?.forEach { tmpCppFile ->
-                val destination = getCppDestination(tmpCppFile.name)
-                tmpCppFile.copyTo(destination, true)
-            }
-        }
-
-        /**
-         * Copy Kotlin file Secrets.kt from the lib to the Android project if it does not exist yet
-         */
-        fun copyKotlinFile() {
-            if (getKotlinFile() != null) {
-                println("$KOTLIN_FILE_NAME already exists")
-                return
-            }
-            val packageName = getPackageNameParam()
-            project.file("$tmpFolder/kotlin/").listFiles()?.forEach {
-                val destination = getKotlinDestination(packageName, it.name)
-                if (destination.exists()) {
-                    println("${it.name} already exists")
-                } else {
-                    println("Copy $it.name to\n$destination")
-                    it.copyTo(destination, true)
-                }
-            }
-        }
-
-        /**
-         * Copy a clean Kotlin file 'Secrets.kt' from the lib to the Android project
-         */
-        fun cleanCopyKotlinFile() {
+        fun copyKotlinFile(clean: Boolean) {
             val existingKotlinFile: File? = getKotlinFile()
             if (existingKotlinFile != null) {
-                println("Overwriting existing $KOTLIN_FILE_NAME.")
-                tmpKotlinFile().copyTo(existingKotlinFile, true)
+                if (clean) {
+                    println("Overwriting existing $KOTLIN_FILE_NAME.")
+                    tmpKotlinFile().copyTo(existingKotlinFile, true)
+                } else {
+                    println("$KOTLIN_FILE_NAME already exists")
+                    return
+                }
             } else {
-                copyKotlinFile()
+                val packageName = getPackageNameParam()
+                project.file("$tmpFolder/kotlin/").listFiles()?.forEach {
+                    val destination = getKotlinDestination(packageName, it.name)
+                    if (destination.exists()) {
+                        println("${it.name} already exists")
+                    } else {
+                        println("Copy $it.name to\n$destination")
+                        it.copyTo(destination, true)
+                    }
+                }
             }
         }
 
         /**
-         * Assemble secrets to project
+         * Main method of the project: add Cpp and Kotlin files to your project if necessary,
+         * obfuscate your secret key and add it to your project.
          */
         fun hideSecret(
             keyName: String,
             packageName: String,
             obfuscatedKey: String
         ) {
-
             //Add method in Kotlin code
             var secretsKotlin = getKotlinFile()
             if (secretsKotlin == null) {
@@ -328,7 +314,6 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          */
         project.tasks.create(TASK_UNZIP_HIDDEN_SECRETS, Copy::class.java,
             object : Action<Copy?> {
-
                 @TaskAction
                 override fun execute(copy: Copy) {
                     // in the case of buildSrc dir
@@ -349,7 +334,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             this.group = TASK_GROUP
             this.description = "Copy C++ files to your project"
             doLast {
-                copyCppFiles()
+                copyCppFiles(false)
             }
         }
 
@@ -361,7 +346,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             this.group = TASK_GROUP
             this.description = "Copy Kotlin file to your project"
             doLast {
-                copyKotlinFile()
+                copyKotlinFile(false)
             }
         }
 
@@ -390,8 +375,8 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 //Assert that the key is present
                 getKeyParam()
                 //Copy files if they don't exist
-                copyCppFiles()
-                copyKotlinFile()
+                copyCppFiles(false)
+                copyKotlinFile(false)
 
                 val keyName = getKeyNameParam()
                 val packageName = getPackageNameParam()
@@ -406,9 +391,9 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * Obfuscate a keys from properties file and add it to your Android project
+         * Clean all secret hidden keys in your project and obfuscate all keys from the properties file.
          */
-        project.task(TASK_HIDE_SECRET_FROM_PROPS)
+        project.task(TASK_HIDE_SECRET_FROM_PROPERTIES_FILE)
         {
             this.group = TASK_GROUP
             this.description = "Re-generate and obfuscate keys from properties file and add it to your Android project"
@@ -416,12 +401,12 @@ open class HiddenSecretsPlugin : Plugin<Project> {
 
             doLast {
                 //Create a clean copy of dependency files
-                cleanCopyCppFiles()
-                cleanCopyKotlinFile()
+                copyCppFiles(true)
+                copyKotlinFile(true)
 
                 val packageName = getPackageNameParam()
-                val propsFile = getFromPropsFile()
-                val props = getFromProps(propsFile = propsFile)
+                val propsFile = getPropertiesFile()
+                val props = getPropertiesFromFile(propsFile = propsFile)
                 println("Generating secrets from props: ${propsFile.path}")
                 props.entries.forEach { entry ->
                     val keyName = entry.key as String
