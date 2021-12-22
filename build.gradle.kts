@@ -1,6 +1,6 @@
 plugins {
-    id("com.gradle.plugin-publish") version "0.14.0"
-    id("io.gitlab.arturbosch.detekt") version "1.16.0"
+    id("com.gradle.plugin-publish") version "0.16.0"
+    id("io.gitlab.arturbosch.detekt") version "1.18.1"
     `kotlin-dsl`
     `maven-publish`
 }
@@ -14,8 +14,8 @@ repositories {
 dependencies {
     implementation("com.android.tools.build:gradle:4.1.3")
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.4.3")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:4.4.3")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.3")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.3")
     testImplementation("junit:junit:4.13.2")
 }
 
@@ -40,6 +40,13 @@ gradlePlugin {
                 " to deeply hide secrets in its project to prevent credentials harvesting."
             implementationClass = "com.klaxit.hiddensecrets.HiddenSecretsPlugin"
         }
+    }
+}
+
+detekt {
+    reports {
+        xml.enabled = false
+        sarif.enabled = false
     }
 }
 

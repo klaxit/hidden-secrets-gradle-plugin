@@ -171,7 +171,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
          * Copy Kotlin file Secrets.kt from the lib to the Android project if it does not exist yet
          */
         fun copyKotlinFile() {
-            if (getKotlinFile() != null) {
+            getKotlinFile()?.let {
                 println("$KOTLIN_FILE_NAME already exists")
                 return
             }
