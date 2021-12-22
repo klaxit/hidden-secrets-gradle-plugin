@@ -1,6 +1,6 @@
 plugins {
-    id("com.gradle.plugin-publish") version "0.16.0"
-    id("io.gitlab.arturbosch.detekt") version "1.18.1"
+    id("com.gradle.plugin-publish") version "0.18.0"
+    id("io.gitlab.arturbosch.detekt") version "1.19.0"
     `kotlin-dsl`
     `maven-publish`
 }
@@ -12,10 +12,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:4.1.3")
+    implementation("com.android.tools.build:gradle:4.2.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.3")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.3")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.4")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.4")
     testImplementation("junit:junit:4.13.2")
 }
 
@@ -28,7 +28,7 @@ java {
 pluginBundle {
     website = "https://github.com/klaxit/hidden-secrets-gradle-plugin"
     vcsUrl = "https://github.com/klaxit/hidden-secrets-gradle-plugin.git"
-    tags = listOf("gradle", "plugin", "android", "hide", "secret", "key", "string", "obfuscate")
+    tags = listOf("plugin", "android", "hide", "secret", "key", "string", "obfuscate")
 }
 
 gradlePlugin {
