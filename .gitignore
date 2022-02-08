@@ -4,3 +4,7 @@
 .gradle/
 build/
 .idea/
+
+# Local files
+.java-version
+local.properties
