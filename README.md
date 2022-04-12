@@ -59,7 +59,7 @@ The parameter `keyName` is optional, by default the key name is randomly generat
 The parameter `package` is optional, by default the `applicationId` of your project will be used.
 
 # 3 - Get your secret key in your app
-Enable C++ files compilation by adding this lines in the app level `build.gradle` :
+Enable C++ files compilation by adding this lines in the Module level `build.gradle` :
 ```gradle
 android {
 

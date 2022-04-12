@@ -1,3 +1,9 @@
+# 0.1.5
+### Fixes
+* Fix `UnsatisfiedLinkError` when package name has underscores. Reported in https://github.com/klaxit/hidden-secrets-gradle-plugin/issues/52
+* Add unit tests for package name conversion
+### Improvements
+* Update libs and gradle
 # 0.1.4
 ### Improvements
 * Update libs and gradle

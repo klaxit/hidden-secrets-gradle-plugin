@@ -10,9 +10,15 @@ class UtilsTest : WordSpec({
 
     val packageName = "com.klaxit.test"
 
-    "Using getUnderScoredPackageName()" should {
+    "Using getCppPackageName()" should {
         "transform package separator" {
-            Utils.getSnakeCasePackageName(packageName) shouldBe "com_klaxit_test"
+            Utils.getCppPackageName(packageName) shouldBe "com_klaxit_test"
+        }
+        "transform package with underscore" {
+            Utils.getCppPackageName("com.klaxit.test_with_underscore") shouldBe "com_klaxit_test_1with_1underscore"
+        }
+        "transform package with escaping characters" {
+            Utils.getCppPackageName("com[test.klaxit;test.test_with_underscore") shouldBe "com_3test_klaxit_2test_test_1with_1underscore"
         }
     }
 
