@@ -120,7 +120,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * Get properties file to hide secrets from
+         * Get properties from the provided file
          * @throws IllegalArgumentException no props found in project
          */
         @Throws(IllegalArgumentException::class)
@@ -206,12 +206,12 @@ open class HiddenSecretsPlugin : Plugin<Project> {
 
         /**
          * Copy Cpp files from the lib to the Android project
-         * @param clean whether to overwrite existing files
+         * @param overwrite whether to overwrite existing files
          */
-        fun copyCppFiles(clean: Boolean) {
+        fun copyCppFiles(overwrite: Boolean = false) {
             project.file("$tmpFolder/cpp/").listFiles()?.forEach {
                 val destination = getCppDestination(it.name)
-                if (!clean && destination.exists()) {
+                if (!overwrite && destination.exists()) {
                     println("${it.name} already exists")
                 } else {
                     println("Copy $it.name to\n$destination")
@@ -222,12 +222,12 @@ open class HiddenSecretsPlugin : Plugin<Project> {
 
         /**
          * Copy Kotlin file Secrets.kt from the lib to the Android project
-         * @param clean whether to overwrite existing files
+         * @param overwrite whether to overwrite existing files
          */
-        fun copyKotlinFile(clean: Boolean) {
+        fun copyKotlinFile(overwrite: Boolean = false) {
             val existingKotlinFile: File? = getKotlinFile()
             if (existingKotlinFile != null) {
-                if (clean) {
+                if (overwrite) {
                     println("Overwriting existing $KOTLIN_FILE_NAME.")
                     tmpKotlinFile().copyTo(existingKotlinFile, true)
                 } else {
@@ -334,7 +334,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             this.group = TASK_GROUP
             this.description = "Copy C++ files to your project"
             doLast {
-                copyCppFiles(false)
+                copyCppFiles()
             }
         }
 
@@ -346,7 +346,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             this.group = TASK_GROUP
             this.description = "Copy Kotlin file to your project"
             doLast {
-                copyKotlinFile(false)
+                copyKotlinFile()
             }
         }
 
@@ -375,18 +375,14 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 //Assert that the key is present
                 getKeyParam()
                 //Copy files if they don't exist
-                copyCppFiles(false)
-                copyKotlinFile(false)
+                copyCppFiles()
+                copyKotlinFile()
 
                 val keyName = getKeyNameParam()
                 val packageName = getPackageNameParam()
                 val obfuscatedKey = getObfuscatedKey()
 
-                hideSecret(
-                    keyName = keyName,
-                    packageName = packageName,
-                    obfuscatedKey = obfuscatedKey
-                )
+                hideSecret(keyName, packageName,obfuscatedKey)
             }
         }
 
@@ -411,11 +407,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 props.entries.forEach { entry ->
                     val keyName = entry.key as String
                     val obfuscatedKey = Utils.encodeSecret(entry.value as String, packageName)
-                    hideSecret(
-                        keyName = keyName,
-                        packageName = packageName,
-                        obfuscatedKey = obfuscatedKey
-                    )
+                    hideSecret(keyName, packageName, obfuscatedKey)
                 }
             }
         }
