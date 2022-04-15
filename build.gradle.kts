@@ -1,5 +1,5 @@
 plugins {
-    id("com.gradle.plugin-publish") version "0.18.0"
+    id("com.gradle.plugin-publish") version "0.21.0"
     id("io.gitlab.arturbosch.detekt") version "1.19.0"
     `kotlin-dsl`
     `maven-publish`
@@ -14,8 +14,8 @@ repositories {
 dependencies {
     implementation("com.android.tools.build:gradle:4.2.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:4.6.4")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:4.6.4")
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:5.2.2")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:5.2.2")
     testImplementation("junit:junit:4.13.2")
 }
 

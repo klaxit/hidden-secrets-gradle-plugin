@@ -292,7 +292,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 if (text.contains(KEY_PLACEHOLDER)) {
                     //Edit placeholder key
                     //Replace package name
-                    text = text.replace(PACKAGE_PLACEHOLDER, Utils.getSnakeCasePackageName(kotlinPackage))
+                    text = text.replace(PACKAGE_PLACEHOLDER, Utils.getCppPackageName(kotlinPackage))
                     //Replace key name
                     text = text.replace("YOUR_KEY_NAME_GOES_HERE", keyName)
                     //Replace demo key
