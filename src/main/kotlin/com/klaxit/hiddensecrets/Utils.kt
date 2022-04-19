@@ -11,18 +11,15 @@ object Utils {
 
     /**
      * Transform package name com.klaxit.hidden to com_klaxit_hidden to ingrate in C++ code
+     * Java package name needs to escape some characters to call the NDK
+     * From https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/design.html#resolving_native_method_names
      */
-    fun getSnakeCasePackageName(packageName: String): String {
-        val packageComponents = packageName.split(".")
-        var packageStr = ""
-        val iterator: Iterator<String> = packageComponents.iterator()
-        while (iterator.hasNext()) {
-            packageStr += iterator.next()
-            if (iterator.hasNext()) {
-                packageStr += "_"
-            }
-        }
-        return packageStr
+    fun getCppPackageName(packageName: String): String {
+        return packageName
+            .replace("_", "_1")
+            .replace(";", "_2")
+            .replace("[", "_3")
+            .replace(".", "_")
     }
 
     /**
