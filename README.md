@@ -119,23 +119,54 @@ This method is automatically called and will revert the rot13 applied on your ke
 Secrets().getYourSecretKeyName(packageName)
 ```
 
-## Other available commands
+# Going further
+## Generate secrets from properties file
+You can generate secrets from properties file as well.
 
-### Copy files
+### Use case
+If you are using CI system to provide secrets, that are not hard-coded into the repository itself. It will re-generate those secrets in the app and build it.
+
+This is useful if you want to split production keys from repository itself, thus increasing security in your project repository.
+
+### Setting up
+1. Create a new properties file in root project directory.
+
+``` shell
+credentials.properties
+```
+
+2. Fill in wanted secrets. For ex.:
+
+``` java-properties
+keyName1=yourKeyToObfuscate1
+keyName2=yourKeyToObfuscate2
+```
+
+3. Run
+
+``` shell
+./gradlew hideSecretFromPropertiesFile -PpropertiesFileName=credentials.properties
+```
+
+It will regenerate all secret files in the project and update all secrets from the properties file.
+
+# Other available commands
+
+## Copy files
 Copy required files to your project :
 ```shell
 ./gradlew copyCpp
 ./gradlew copyKotlin [-Ppackage=your.package.name]
 ```
 
-### Obfuscate
+## Obfuscate
 Create an obfuscated key and display it :
 ```shell
 ./gradlew obfuscate -Pkey=yourKeyToObfuscate [-Ppackage=com.your.package]
 ```
 This command can be useful if you modify your app's package name based on `buildTypes` configuration. With this command you can get the obfuscated key for a different package name and manually integrate it in another function in `secrets.cpp`.
 
-## Development
+# Development
 
 Pull Requests are very welcome!
 
@@ -146,10 +177,10 @@ Before opening a PR :
 - `./gradlew test` must succeed
 - `./gradlew detekt` must succeed to avoid any style issue
 
-## Authors
+# Authors
 
 See the list of [contributors](https://github.com/klaxit/hidden-secrets-gradle-plugin/contributors) who participated in this project.
 
-## License
+# License
 
 Please see [LICENSE](https://github.com/klaxit/hidden-secrets-gradle-plugin/blob/master/LICENSE)
