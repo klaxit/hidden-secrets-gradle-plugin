@@ -51,7 +51,7 @@ detekt {
 }
 
 tasks.withType<Copy> {
-    //Required by Gradle 7.0
+    // Required by Gradle 7.0
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 

@@ -59,7 +59,7 @@ jstring getOriginalKey(
     // Add string terminal delimiter
     out[obfuscatedSecretSize] = 0x0;
 
-    //(Optional) To improve key security
+    // (Optional) To improve key security
     return pEnv->NewStringUTF(customDecode(out));
 }
 

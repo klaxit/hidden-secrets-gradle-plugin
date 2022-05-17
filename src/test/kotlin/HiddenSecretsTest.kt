@@ -27,7 +27,7 @@ class HiddenSecretsTest : WordSpec({
             .withProjectDir(testProjectDir.root)
             .withTestKitDir(testProjectDir.newFolder())
 
-        //Properties
+        // Properties
         val key = "thisIsATestKey"
         val packageName = "com.package.test"
 
@@ -44,7 +44,7 @@ class HiddenSecretsTest : WordSpec({
         "Make command ${HiddenSecretsPlugin.TASK_OBFUSCATE} succeed" {
             val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_OBFUSCATE, "-Pkey=$key", "-Ppackage=$packageName").build()
             println(result.output)
-            //Should contain obfuscated key
+            // Should contain obfuscated key
             result.output shouldContain "{ 0x15, 0x58, 0xb, 0x43, 0x78, 0x4a, 0x23, 0x6d, 0x1, 0x4b, 0x46, 0x7c, 0x57, 0x41 }"
         }
 
