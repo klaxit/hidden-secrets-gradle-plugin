@@ -37,11 +37,11 @@ object Utils {
      * Encode a string key to and hex array using package name
      */
     fun encodeSecret(key: String, packageName: String): String {
-        //Generate the obfuscator as the SHA256 of the app package name
+        // Generate the obfuscator as the SHA256 of the app package name
         val obfuscator = sha256(packageName)
         val obfuscatorBytes = obfuscator.toByteArray()
 
-        //Generate the obfuscated secret bytes array by applying a XOR between the secret and the obfuscator
+        // Generate the obfuscated secret bytes array by applying a XOR between the secret and the obfuscator
         val obfuscatedSecretBytes = arrayListOf<Byte>()
         var i = 0
         key.toByteArray(Charset.defaultCharset()).forEach { secretByte ->
