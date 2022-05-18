@@ -99,7 +99,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         @Input
         fun getKeyNameParam(): String {
             val chars = ('a'..'z') + ('A'..'Z')
-            //  Default random key name
+            // Default random key name
             var keyName = List(DEFAULT_KEY_NAME_LENGTH) { chars.random() }.joinToString("")
             if (project.hasProperty(KEY_NAME)) {
                 // From command line
@@ -194,7 +194,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             object : Action<Copy?> {
                 @TaskAction
                 override fun execute(copy: Copy) {
-                    //  in the case of buildSrc dir
+                    // in the case of buildSrc dir
                     copy.from(project.zipTree(javaClass.protectionDomain.codeSource.location!!.toExternalForm()))
                     println("Unzip jar to $tmpFolder")
                     copy.into(tmpFolder)
