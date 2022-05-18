@@ -1,3 +1,12 @@
+# 0.2.0
+### Improvements
+* Ability to re-generate secrets from .properties file
+* Group Gradle tasks and their descriptions to convenience command `tasks`
+* Add a blank space after all // in line comments
+#### Contributors
+@valydia
+@marius-m
+@michpohl
 # 0.1.5
 ### Fixes
 * Fix `UnsatisfiedLinkError` when package name has underscores. Reported in https://github.com/klaxit/hidden-secrets-gradle-plugin/issues/52
@@ -17,7 +26,7 @@
 * Fix call to `customDecode()` in C++ code
 ### Improvements
 * jcenter dependency removed
-* Moving up to gradle 6.8.3 
+* Moving up to gradle 6.8.3
 * Various libraries update
 # 0.1.1
 ### Fixes
