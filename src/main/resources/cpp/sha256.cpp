@@ -150,7 +150,7 @@ void SHA256::final(unsigned char *digest)
     }
 }
  
-void sha256(const char* input, char buf[2*SHA256::DIGEST_SIZE + 1])
+void sha256(const char* input, char buf[SHA256::DIGEST_SIZE])
 {
     unsigned char digest[SHA256::DIGEST_SIZE];
     memset(digest, 0, SHA256::DIGEST_SIZE);
@@ -160,9 +160,6 @@ void sha256(const char* input, char buf[2*SHA256::DIGEST_SIZE + 1])
     ctx.update( (unsigned char*)input, strlen(input));
     ctx.final(digest);
 
-    buf[2*SHA256::DIGEST_SIZE] = 0;
-    for (int i = 0; i < SHA256::DIGEST_SIZE; i++) {
-        sprintf(buf + i * 2, "%02x", digest[i]);
-    }
+    memcpy(buf, digest, SHA256::DIGEST_SIZE);
 }
 
