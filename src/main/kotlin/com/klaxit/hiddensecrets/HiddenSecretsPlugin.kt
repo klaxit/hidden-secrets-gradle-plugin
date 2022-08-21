@@ -288,6 +288,13 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 kotlinPackage = packageName
             }
 
+            /**
+             * There are certain rules for underscores in JNI spec, please see here:
+             * https://docs.oracle.com/javase/8/docs/technotes/guides/jni/spec/design.html#resolving_native_method_names
+             */
+            val keyNameForJNI = keyName.replace("_", "_1")
+            println("keyNameForJNI: $keyNameForJNI")
+
             // Add obfuscated key in C++ code
             val secretsCpp = getCppDestination("secrets.cpp")
             if (secretsCpp.exists()) {
@@ -300,13 +307,13 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                     // Replace package name
                     text = text.replace(PACKAGE_PLACEHOLDER, Utils.getCppPackageName(kotlinPackage))
                     // Replace key name
-                    text = text.replace("YOUR_KEY_NAME_GOES_HERE", keyName)
+                    text = text.replace("YOUR_KEY_NAME_GOES_HERE", keyNameForJNI)
                     // Replace demo key
                     text = text.replace(KEY_PLACEHOLDER, obfuscatedKey)
                     secretsCpp.writeText(text)
                 } else {
                     // Add new key
-                    text += CodeGenerator.getCppCode(kotlinPackage, keyName, obfuscatedKey)
+                    text += CodeGenerator.getCppCode(kotlinPackage, keyNameForJNI, obfuscatedKey)
                     secretsCpp.writeText(text)
                 }
             } else {
