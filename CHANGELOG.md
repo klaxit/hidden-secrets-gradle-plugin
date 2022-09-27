@@ -1,3 +1,8 @@
+# 0.2.1
+### Fixes
+* Convert key names to C++ style to avoid `No implementation found` error
+#### Contributors
+@pratclot
 # 0.2.0
 ### Improvements
 * Ability to re-generate secrets from .properties file
