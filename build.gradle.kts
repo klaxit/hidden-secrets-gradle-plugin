@@ -29,7 +29,7 @@ java {
 pluginBundle {
     website = "https://github.com/klaxit/hidden-secrets-gradle-plugin"
     vcsUrl = "https://github.com/klaxit/hidden-secrets-gradle-plugin.git"
-    tags = listOf("plugin", "android", "hide", "secret", "key", "string", "obfuscate")
+    tags = listOf("android", "hide", "secret", "key", "string", "obfuscate")
 }
 
 gradlePlugin {
