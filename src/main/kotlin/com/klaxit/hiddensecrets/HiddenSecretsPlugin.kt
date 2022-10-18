@@ -295,18 +295,20 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 if (text.contains(obfuscatedKey)) {
                     println("⚠️ Key already added in C++ !")
                 }
+                // Escape required characters
+                val cppKeyName = Utils.getCppName(keyName)
                 if (text.contains(KEY_PLACEHOLDER)) {
                     // Edit placeholder key
                     // Replace package name
-                    text = text.replace(PACKAGE_PLACEHOLDER, Utils.getCppPackageName(kotlinPackage))
+                    text = text.replace(PACKAGE_PLACEHOLDER, Utils.getCppName(kotlinPackage))
                     // Replace key name
-                    text = text.replace("YOUR_KEY_NAME_GOES_HERE", keyName)
+                    text = text.replace("YOUR_KEY_NAME_GOES_HERE", cppKeyName)
                     // Replace demo key
                     text = text.replace(KEY_PLACEHOLDER, obfuscatedKey)
                     secretsCpp.writeText(text)
                 } else {
                     // Add new key
-                    text += CodeGenerator.getCppCode(kotlinPackage, keyName, obfuscatedKey)
+                    text += CodeGenerator.getCppCode(kotlinPackage, cppKeyName, obfuscatedKey)
                     secretsCpp.writeText(text)
                 }
             } else {

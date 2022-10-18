@@ -12,7 +12,7 @@ object CodeGenerator {
 
         return "\nextern \"C\"\n" +
                 "JNIEXPORT jstring JNICALL\n" +
-                "Java_" + Utils.getCppPackageName(packageName) + "_Secrets_get$keyName(\n" +
+                "Java_" + Utils.getCppName(packageName) + "_Secrets_get$keyName(\n" +
                 "        JNIEnv* pEnv,\n" +
                 "        jobject pThis,\n" +
                 "        jstring packageName) {\n" +
