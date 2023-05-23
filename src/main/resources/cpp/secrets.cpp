@@ -45,7 +45,7 @@ jstring getOriginalKey(
 
     // Get the obfuscating string SHA256 as the obfuscator
     const char *obfuscatingStr = pEnv->GetStringUTFChars(obfuscatingJStr, NULL);
-    char buffer[2 * SHA256::DIGEST_SIZE + 1];
+    char buffer[SHA256::DIGEST_SIZE];
 
     sha256(obfuscatingStr, buffer);
     const char *obfuscator = buffer;
@@ -53,7 +53,7 @@ jstring getOriginalKey(
     // Apply a XOR between the obfuscated key and the obfuscating string to get original string
     char out[obfuscatedSecretSize + 1];
     for (int i = 0; i < obfuscatedSecretSize; i++) {
-        out[i] = obfuscatedSecret[i] ^ obfuscator[i % strlen(obfuscator)];
+        out[i] = obfuscatedSecret[i] ^ obfuscator[i % SHA256::DIGEST_SIZE];
     }
 
     // Add string terminal delimiter

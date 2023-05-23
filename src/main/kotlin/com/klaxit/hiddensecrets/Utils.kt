@@ -26,11 +26,11 @@ object Utils {
      * Encode string to sha256
      */
     @VisibleForTesting
-    fun sha256(toHash: String): String {
+    fun sha256(toHash: String): ByteArray {
         val bytes = toHash.toByteArray()
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(bytes)
-        return digest.fold("") { str, it -> str + "%02x".format(it) }
+        return digest
     }
 
     /**
@@ -38,8 +38,7 @@ object Utils {
      */
     fun encodeSecret(key: String, packageName: String): String {
         // Generate the obfuscator as the SHA256 of the app package name
-        val obfuscator = sha256(packageName)
-        val obfuscatorBytes = obfuscator.toByteArray()
+        val obfuscatorBytes = sha256(packageName)
 
         // Generate the obfuscated secret bytes array by applying a XOR between the secret and the obfuscator
         val obfuscatedSecretBytes = arrayListOf<Byte>()
