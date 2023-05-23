@@ -24,7 +24,7 @@ In your Module level `build.gradle`:
 
 ```gradle
 plugins {
-    id "com.klaxit.hiddensecrets" version "X.Y.Z"
+    id "com.klaxit.hiddensecrets" version "0.2.1"
 }
 ```
 ℹ️ If your project sync triggers the issue `Could not find com.android.tools.build:gradle:X.Y.Z`, please use the legacy plugin application below.
@@ -40,7 +40,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.klaxit.hiddensecrets:HiddenSecretsPlugin:X.Y.Z"
+        classpath "com.klaxit.hiddensecrets:HiddenSecretsPlugin:0.2.1"
     }
 }
 
