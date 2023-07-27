@@ -34,11 +34,11 @@ object Utils {
     }
 
     /**
-     * Encode a string key to and hex array using package name
+     * Encode a string key to and hex array using cert key
      */
-    fun encodeSecret(key: String, packageName: String): String {
+    fun encodeSecret(key: String, certKey: String): String {
         // Generate the obfuscator as the SHA256 of the app package name
-        val obfuscator = sha256(packageName)
+        val obfuscator = sha256(certKey)
         val obfuscatorBytes = obfuscator.toByteArray()
 
         // Generate the obfuscated secret bytes array by applying a XOR between the secret and the obfuscator

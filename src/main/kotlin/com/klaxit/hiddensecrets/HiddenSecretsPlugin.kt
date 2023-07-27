@@ -22,7 +22,8 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         private const val DEFAULT_KEY_NAME_LENGTH = 8
         private const val KEY_PLACEHOLDER = "YOUR_KEY_GOES_HERE"
         private const val PACKAGE_PLACEHOLDER = "YOUR_PACKAGE_GOES_HERE"
-        private const val KOTLIN_FILE_NAME = "Secrets.kt"
+        private const val SECRET_KOTLIN_FILE_NAME = "Secrets.kt"
+        private const val CERTIFICATE_FILE_NAME = "Certificate.kt"
 
         // Tasks
         const val TASK_GROUP = "Hide secrets"
@@ -33,17 +34,21 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         const val TASK_HIDE_SECRET_FROM_PROPERTIES_FILE = "hideSecretFromPropertiesFile"
         const val TASK_OBFUSCATE = "obfuscate"
         const val TASK_PACKAGE_NAME = "packageName"
+        const val TASK_CERT_KEY = "certKey"
         const val TASK_FIND_KOTLIN_FILE = "findKotlinFile"
 
         // Properties
         private const val PROP_KEY = "key"
         private const val PROP_KEY_NAME = "keyName"
         private const val PROP_PACKAGE = "package"
+        private const val PROP_CERT_KEY = "certKey"
         private const val PROP_FILE_NAME = "propertiesFileName"
 
         // Errors
         private const val ERROR_EMPTY_KEY = "No key provided, use argument '-Pkey=yourKey'"
         private const val ERROR_EMPTY_PACKAGE = "Empty package name, use argument '-Ppackage=your.package.name'"
+        private const val ERROR_EMPTY_CERT_KEY =
+            "Empty cert key, use argument '-Pcert=150531447af80ddb41dce58a68c9ec3c'"
 
         // Sample usage
         private const val SAMPLE_FROM_PROPS = "-P${PROP_FILE_NAME}=credentials.properties"
@@ -98,6 +103,26 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 throw InvalidUserDataException(ERROR_EMPTY_PACKAGE)
             }
             return packageName
+        }
+
+        /**
+         * Get package name param from command line
+         */
+        @Input
+        fun getCertMD5KeyParam(): String {
+            var certificateMd5Key: String? = null
+            if (project.hasProperty(PROP_CERT_KEY)) {
+                // From command line
+                certificateMd5Key = project.property(PROP_CERT_KEY) as String?
+            }
+            if (certificateMd5Key.isNullOrEmpty()) {
+                // From Android app
+                certificateMd5Key = getAppPackageName()
+            }
+            if (certificateMd5Key.isNullOrEmpty()) {
+                throw InvalidUserDataException(ERROR_EMPTY_CERT_KEY)
+            }
+            return certificateMd5Key
         }
 
         /**
@@ -167,10 +192,13 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             val key = getKeyParam()
             println("### SECRET ###\n$key\n")
 
-            val packageName = getPackageNameParam()
-            println("### PACKAGE NAME ###\n$packageName\n")
+            val certKey = getCertMD5KeyParam()
+            println("### Cert Key ###\n$certKey\n")
 
-            val encodedKey = Utils.encodeSecret(key, packageName)
+//            val packageName = getPackageNameParam()
+//            println("### PACKAGE NAME ###\n$packageName\n")
+
+            val encodedKey = Utils.encodeSecret(key, certKey)
             println("### OBFUSCATED SECRET ###\n$encodedKey")
             return encodedKey
         }
@@ -195,19 +223,19 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
-         * @return empty template file for [KOTLIN_FILE_NAME]
+         * @return empty template file for [fileName]
          */
-        fun tmpKotlinFile(): File {
+        fun tmpKotlinFile(fileName: String): File {
             return project.file("$tmpFolder/kotlin/").listFiles()
-                ?.first { it.name == KOTLIN_FILE_NAME }
+                ?.first { it.name == fileName }
                 ?: throw IllegalStateException("Did not find temporary template for secrets!")
         }
 
         /**
          * If found, returns the Secrets.kt file in the Android app
          */
-        fun getKotlinFile(): File? {
-            return Utils.findFileInProject(project, APP_MAIN_FOLDER, KOTLIN_FILE_NAME)
+        fun getKotlinFile(appMainFolder: String, kotlinFileName: String): File? {
+            return Utils.findFileInProject(project, appMainFolder, kotlinFileName)
         }
 
         /**
@@ -226,18 +254,13 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             }
         }
 
-        /**
-         * Copy Kotlin file Secrets.kt from the lib to the Android project
-         * @param overwrite whether to overwrite existing files
-         */
-        fun copyKotlinFile(overwrite: Boolean = false) {
-            val existingKotlinFile: File? = getKotlinFile()
+        fun copyFile(existingKotlinFile: File?, overwrite: Boolean) {
             if (existingKotlinFile != null) {
                 if (overwrite) {
-                    println("Overwriting existing $KOTLIN_FILE_NAME.")
-                    tmpKotlinFile().copyTo(existingKotlinFile, true)
+                    println("Overwriting existing ${existingKotlinFile.name}.")
+                    tmpKotlinFile(existingKotlinFile.name).copyTo(existingKotlinFile, true)
                 } else {
-                    println("$KOTLIN_FILE_NAME already exists")
+                    println("${existingKotlinFile.name} already exists")
                     return
                 }
             } else {
@@ -255,6 +278,24 @@ open class HiddenSecretsPlugin : Plugin<Project> {
         }
 
         /**
+         * Copy Kotlin file Secrets.kt from the lib to the Android project
+         * @param overwrite whether to overwrite existing files
+         */
+        fun copyKotlinFile(overwrite: Boolean = false) {
+            val existingKotlinFile: File? = getKotlinFile(APP_MAIN_FOLDER, SECRET_KOTLIN_FILE_NAME)
+            val existingCertKotlinFile: File? = getKotlinFile(APP_MAIN_FOLDER, CERTIFICATE_FILE_NAME)
+            copyFile(existingKotlinFile, overwrite)
+            copyFile(existingCertKotlinFile, overwrite)
+
+            val packageName = getPackageNameParam()
+//            val existingCertKotlinFile = getKotlinDestination(packageName, CERTIFICATE_FILE_NAME)
+            var text = existingCertKotlinFile?.readText(Charset.defaultCharset())
+            text = text?.replace(PACKAGE_PLACEHOLDER, packageName)
+            text = text?.dropLast(1)
+            existingCertKotlinFile?.writeText(text!!)
+        }
+
+        /**
          * Main method of the project: add Cpp and Kotlin files to your project if necessary,
          * obfuscate your secret key and add it to your project.
          */
@@ -264,10 +305,10 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             obfuscatedKey: String
         ) {
             // Add method in Kotlin code
-            var secretsKotlin = getKotlinFile()
+            var secretsKotlin = getKotlinFile(APP_MAIN_FOLDER, SECRET_KOTLIN_FILE_NAME)
             if (secretsKotlin == null) {
                 // File not found in project
-                secretsKotlin = getKotlinDestination(packageName, KOTLIN_FILE_NAME)
+                secretsKotlin = getKotlinDestination(packageName, SECRET_KOTLIN_FILE_NAME)
             }
             if (secretsKotlin.exists()) {
                 var text = secretsKotlin.readText(Charset.defaultCharset())
@@ -284,7 +325,7 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             // Resolve package name for C++ from the one used in Kotlin file
             var kotlinPackage = Utils.getKotlinFilePackage(secretsKotlin)
             if (kotlinPackage.isEmpty()) {
-                println("Empty package in $KOTLIN_FILE_NAME")
+                println("Empty package in $SECRET_KOTLIN_FILE_NAME")
                 kotlinPackage = packageName
             }
 
@@ -408,13 +449,14 @@ open class HiddenSecretsPlugin : Plugin<Project> {
                 copyCppFiles(true)
                 copyKotlinFile(true)
 
+                val certKey = getCertMD5KeyParam()
                 val packageName = getPackageNameParam()
                 val propsFile = getPropertiesFile()
                 val props = getPropertiesFromFile(propsFile = propsFile)
                 println("Generating secrets from props: ${propsFile.path}")
                 props.entries.forEach { entry ->
                     val keyName = entry.key as String
-                    val obfuscatedKey = Utils.encodeSecret(entry.value as String, packageName)
+                    val obfuscatedKey = Utils.encodeSecret(entry.value as String, certKey)
                     hideSecret(keyName, packageName, obfuscatedKey)
                 }
             }
@@ -439,7 +481,19 @@ open class HiddenSecretsPlugin : Plugin<Project> {
             this.group = TASK_GROUP
             this.description = "Find Secrets.kt file in the project"
             doLast {
-                getKotlinFile()
+                getKotlinFile(APP_MAIN_FOLDER, SECRET_KOTLIN_FILE_NAME)
+            }
+        }
+
+        /**
+         * Print the cert key of the app
+         */
+        project.task(TASK_CERT_KEY)
+        {
+            this.group = TASK_GROUP
+            this.description = "Print the cert key of the app"
+            doLast {
+                println("APP CERT KEY = " + getCertMD5KeyParam())
             }
         }
     }

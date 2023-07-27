@@ -68,7 +68,7 @@ JNIEXPORT jstring JNICALL
 Java_YOUR_PACKAGE_GOES_HERE_Secrets_getYOUR_KEY_NAME_GOES_HERE(
         JNIEnv *pEnv,
         jobject pThis,
-        jstring packageName) {
+        jstring certKey) {
     char obfuscatedSecret[] = YOUR_KEY_GOES_HERE;
-    return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), packageName, pEnv);
+    return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), certKey, pEnv);
 }

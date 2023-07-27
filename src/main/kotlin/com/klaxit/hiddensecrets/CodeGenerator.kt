@@ -15,9 +15,9 @@ object CodeGenerator {
                 "Java_" + Utils.getCppName(packageName) + "_Secrets_get$keyName(\n" +
                 "        JNIEnv* pEnv,\n" +
                 "        jobject pThis,\n" +
-                "        jstring packageName) {\n" +
+                "        jstring key) {\n" +
                 "     char obfuscatedSecret[] = $obfuscatedKey;\n" +
-                "     return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), packageName, pEnv);\n" +
+                "     return getOriginalKey(obfuscatedSecret, sizeof(obfuscatedSecret), key, pEnv);\n" +
                 "}\n"
     }
 
@@ -25,7 +25,7 @@ object CodeGenerator {
      * Kotlin code that will be added in your project
      */
     fun getKotlinCode(keyName: String): String {
-        return "\n    external fun get$keyName(packageName: String): String\n" +
+        return "\n    external fun get$keyName(key: String): String\n" +
                 "}"
     }
 }

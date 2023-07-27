@@ -30,6 +30,7 @@ class HiddenSecretsTest : WordSpec({
         // Properties
         val key = "thisIsATestKey"
         val packageName = "com.package.test"
+        val certKey = "150531447af80ddb41dce58a68c9ec3c"
 
         "Make command ${HiddenSecretsPlugin.TASK_COPY_CPP} succeed" {
             val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_COPY_CPP).build()
@@ -42,10 +43,10 @@ class HiddenSecretsTest : WordSpec({
         }
 
         "Make command ${HiddenSecretsPlugin.TASK_OBFUSCATE} succeed" {
-            val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_OBFUSCATE, "-Pkey=$key", "-Ppackage=$packageName").build()
+            val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_OBFUSCATE, "-Pkey=$key", "-PcertKey=$certKey").build()
             println(result.output)
             // Should contain obfuscated key
-            result.output shouldContain "{ 0x15, 0x58, 0xb, 0x43, 0x78, 0x4a, 0x23, 0x6d, 0x1, 0x4b, 0x46, 0x7c, 0x57, 0x41 }"
+            result.output shouldContain "{ 0x44, 0xe, 0x59, 0x46, 0x28, 0x40, 0x24, 0x60, 0x0, 0x16, 0x47, 0x2a, 0x57, 0x49 }"
         }
 
         "Make command ${HiddenSecretsPlugin.TASK_PACKAGE_NAME} succeed" {
@@ -57,6 +58,12 @@ class HiddenSecretsTest : WordSpec({
         "Make command ${HiddenSecretsPlugin.TASK_FIND_KOTLIN_FILE} succeed" {
             val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_FIND_KOTLIN_FILE).build()
             println(result.output)
+        }
+
+        "Make command ${HiddenSecretsPlugin.TASK_CERT_KEY} succeed" {
+            val result = gradleRunner.withArguments(HiddenSecretsPlugin.TASK_CERT_KEY, "-PcertKey=$certKey").build()
+            println(result.output)
+            result.output shouldContain certKey
         }
     }
 })
