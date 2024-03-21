@@ -1,11 +1,11 @@
 package YOUR_PACKAGE_GOES_HERE
 
-class Secrets {
+public class Secrets {
 
     // Method calls will be added by gradle task hideSecret
     // Example : external fun getWellHiddenSecret(packageName: String): String
 
-    companion object {
+    internal companion object {
         init {
             System.loadLibrary("secrets")
         }
