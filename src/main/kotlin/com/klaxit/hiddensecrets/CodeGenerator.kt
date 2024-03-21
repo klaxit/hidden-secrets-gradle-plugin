@@ -25,7 +25,7 @@ object CodeGenerator {
      * Kotlin code that will be added in your project
      */
     fun getKotlinCode(keyName: String): String {
-        return "\n    external fun get$keyName(packageName: String): String\n" +
+        return "\n    public external fun get$keyName(packageName: String): String\n" +
                 "}"
     }
 }
